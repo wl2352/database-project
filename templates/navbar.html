@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Criminal Database</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>
+            Criminal Management System
+        </h1>
+        <div class="navbar-links">
+            <div>
+                Criminal
+            </div>
+            <div>
+                Officer
+            </div>
+            <div>
+                Crime
+            </div>
+            <div>
+                Log out
+            </div>
+            
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
