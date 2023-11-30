@@ -4,6 +4,9 @@ from models.criminal import Criminal
 from models.alias import Alias
 from models.address import Address
 from models.criminal_phone import CriminalPhone
+from models.crime import Crime
+from models.sentences import Sentence
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
@@ -96,7 +99,9 @@ def get_criminal(id):
 
     else: # GET request
         criminal = Criminal.query.get(id)
-        return render_template('criminal.html', criminal=criminal)
+        crimes = Crime.query.filter_by(criminal_id=id).all()
+        sentences = Sentence.query.filter_by(criminal_id=id).all()
+        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences)
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

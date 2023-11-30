@@ -98,13 +98,57 @@
                 </form>
             </div>
         </div>
-
-
-
-
     </div>
+
     <div class="tables">
-        tables
+        <div>
+            <strong>Crimes</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Crime ID</th>
+                        <th>Fine</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for crime in crimes %}
+                    <tr>
+                        <td>{{ crime.crime_id }}</td>
+                        <td>{{ crime.fine }}</td>
+                        <td>{{ crime.amount_paid }}</td>
+                        <td>{{ crime.payment_due_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <strong>Sentences</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sentence ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Number of Violations</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for sentence in sentences %}
+                    <tr>
+                        <td>{{ sentence.sentence_id }}</td>
+                        <td>{{ sentence.start_date }}</td>
+                        <td>{{ sentence.end_date }}</td>
+                        <td>{{ sentence.num_violations }}</td>
+                        <td>{{ sentence.type }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% block scripts %}
