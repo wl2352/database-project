@@ -8,6 +8,9 @@
     <div class="info-edit">
         <div class="info">
             <span><strong>CRIME ID: </strong>{{ crime.crime_id }}</span>
+            <span><strong>CHARGE CODES: </strong>
+                {{ charge_codes|join(", ") }}
+            </span>
             <span><strong>FINE: </strong>${{ "%.2f"|format(crime.fine) }}</span>
             <span><strong>AMOUNT PAID: </strong>${{ crime.crime_id }}</span>
             <span><strong>PAYMENT DUE DATE: </strong>{{ crime.payment_due_date }}</span>
@@ -50,48 +53,46 @@
 
     <div class="tables">
         <div>
-            <strong>Crimes</strong>
+            <strong>Appeals</strong>
             <table>
                 <thead>
                     <tr>
-                        <th>Crime ID</th>
-                        <th>Fine</th>
-                        <th>Amount Paid</th>
-                        <th>Payment Due Date</th>
+                        <th>Appeal ID</th>
+                        <th>Filing Date</th>
+                        <th>Hearing Date</th>
+                        <th>Appeal Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for crime in crimes %}
+                {% for appeal in appeals %}
                     <tr>
-                        <td><a href="{{ url_for('get_crime', id=crime.crime_id) }}">{{ crime.crime_id }}</a></td>
-                        <td>{{ crime.fine }}</td>
-                        <td>{{ crime.amount_paid }}</td>
-                        <td>{{ crime.payment_due_date }}</td>
+                        <td><a href="{{ url_for('get_appeal', id=appeal.appeal_id) }}">{{ appeal.appeal_id }}</a></td>
+                        <td>{{ appeal.filing_date }}</td>
+                        <td>{{ appeal.hearing_date }}</td>
+                        <td>{{ appeal.appeal_status }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         <div>
-            <strong>Sentences</strong>
+            <strong>Officers</strong>
             <table>
                 <thead>
                     <tr>
-                        <th>Sentence ID</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Number of Violations</th>
-                        <th>Type</th>
+                        <th>Badge Number</th>
+                        <th>Name</th>
+                        <th>Precinct</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for sentence in sentences %}
+                {% for officer in officers %}
                     <tr>
-                        <td>{{ sentence.sentence_id }}</td>
-                        <td>{{ sentence.start_date }}</td>
-                        <td>{{ sentence.end_date }}</td>
-                        <td>{{ sentence.num_violations }}</td>
-                        <td>{{ sentence.type }}</td>
+                        <td>{{ officer.badge_no }}</td>
+                        <td>{{ officer.name }}</td>
+                        <td>{{ officer.precinct }}</td>
+                        <td>{{ officer.status }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

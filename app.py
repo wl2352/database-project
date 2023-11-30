@@ -6,7 +6,10 @@ from models.address import Address
 from models.criminal_phone import CriminalPhone
 from models.crime import Crime
 from models.sentences import Sentence
-
+from models.charge import Charge
+from models.appeal import Appeal
+from models.officer import Officer
+from models.CrimeOfficer import CrimeOfficer
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
@@ -137,7 +140,20 @@ def get_crime(id):
         crime = Crime.query.get(id)
         if crime is None:
             abort(404, description="No crime found with the provided ID.")
-        return render_template('crime.html', crime=crime)
+        charges = Charge.query.filter_by(crime_id=id).all()
+        charge_codes = [str(charge.charge_code) for charge in charges]
+        appeals = Appeal.query.filter_by(crime_id=id).all()
+        crime_officers = CrimeOfficer.query.filter_by(crime_id=id).all()  # query for officers associated with the crime
+        officers = [crime_officer.officer for crime_officer in crime_officers]  # get the Officer objects
+        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers)
+
+@app.route('/appeal/<int:id>', methods=['GET', 'POST'])
+def get_appeal(id):
+    if request.method == 'POST':
+        pass
+    else:
+        pass
+
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')
