@@ -9,6 +9,21 @@ button {
 
 a {
     text-decoration: none;
+    color: #337ab7;
+}
+
+a:hover {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    margin-bottom: 10px;
 }
 
 /* NAVBAR */
