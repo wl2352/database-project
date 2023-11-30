@@ -2,18 +2,112 @@
 
 {% block content %}
 <div class="container">
-    <div>title</div>
+    <div>                
+        <strong>{{ criminal.name }} </strong>
+        {% if criminal.aliases|length > 0 %}
+            (
+            {% for alias in criminal.aliases %}
+                {{ alias.alias_name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            )
+        {% endif %}
+    </div>
     <div class="info-edit">
         <div class="info">
-            <span>criminal id</span>
-            <span>name - alias</span>
-            <span>phone</span>
-            <span>street address, city, state, zip code</span>
+            <span><strong>CRIMINAL ID: </strong>{{ criminal.criminal_id }}</span>
+            <span><strong>PHONE NUMBERS: </strong>
+                {% for phone in criminal.phones %}
+                    {{ phone.c_phone_number }}
+                {% endfor %}
+            </span>
+            <span>
+                <strong>ADDRESSES: </strong>
+                {% for address in criminal.addresses %}
+                    {{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}
+                {% endfor %}
+            </span>
         </div>
-        <button>edit</button>
+        
+
+        <!-- Button to Open the Modal -->
+        <button id="edit-criminal">Edit</button>
+
+        <!-- The Modal -->
+        <div id="criminal-modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="edit_criminal_form" action="/criminal/{{ criminal.criminal_id }}" method="post">
+                    <div>
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" value="{{ criminal.name }}">
+                    </div>
+                    <div class="edit-multi">
+                        <div>
+                            <label for="alias-select">Alias</label>
+                            <select id="alias-select" name="alias_select">
+                                {% for alias in criminal.aliases %}
+                                    <option value="{{ alias.alias_name }}">{{ alias.alias_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="delete-checkbox">
+                            <label for="delete-alias">Delete selected alias?</label>
+                            <input type="checkbox" id="delete-alias" name="delete_alias">
+                        </div>
+                        <input type="text" id="alias" name="alias" placeholder="Edit selected alias">
+                    </div>
+                    <div class="edit-multi">
+                        <div>
+                            <label for="address-select">Address</label>
+                            <select id="address-select" name="address_select">
+                                {% for address in criminal.addresses %}
+                                    <option value="{{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}">{{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="delete-checkbox">
+                            <label for="delete-address">Delete selected address?</label>
+                            <input type="checkbox" id="delete-address" name="delete_address">
+                        </div>
+                        <div class="address-edit">
+                            <input type="text" id="street-address" name="street_address" placeholder="Edit street address">
+                            <input type="text" id="city" name="city" placeholder="Edit city">
+                            <input type="text" id="state" name="state" placeholder="Edit state">
+                            <input type="text" id="zip-code" name="zip_code" placeholder="Edit zip code">
+                        </div>
+                    </div>
+                    <div class="edit-multi">
+                        <div>
+                            <label for="phone-select">Phone Number</label>
+                            <select id="phone-select" name="phone_select">
+                                {% for phone in criminal.phones %}
+                                    <option value="{{ phone.c_phone_number }}">{{ phone.c_phone_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="delete-checkbox">
+                            <label for="delete-phone">Delete selected phone number?</label>
+                            <input type="checkbox" id="delete-phone" name="delete_phone">
+                        </div>
+                        <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
+                    </div>
+                    <div>
+                        <button type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+
+
     </div>
     <div class="tables">
         tables
     </div>
 </div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='criminal.js') }}"></script>
+{% endblock %}
 {% endblock %}
