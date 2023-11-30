@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 from config import db
 from models.criminal import Criminal
 from models.alias import Alias
@@ -29,17 +29,17 @@ def list_of_criminals():
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST'])
 def get_criminal(id):
-    # add user authentication before proceeding
     if request.method == 'POST':
+        # add user authentication before proceeding
         criminal = Criminal.query.get(id)
         if not criminal:
             return 'Criminal not found', 404
 
-        # Update the name
+        # updating name
         if 'name' in request.form:
             criminal.name = request.form['name']
         
-        # Update, add or delete an alias
+        # updating an alias
         if 'alias_select' in request.form:
             alias = Alias.query.get((request.form['alias_select'], id))
             if alias:
@@ -55,6 +55,7 @@ def get_criminal(id):
             else:
                 print('alias not found')
 
+        # updating an address
         if 'address_select' in request.form:
             selected_address = request.form['address_select'].split(', ')
             street_address, city, state, zip_code = selected_address[0], selected_address[1], selected_address[2], int(selected_address[3])
@@ -79,6 +80,7 @@ def get_criminal(id):
             else:
                 print("Address not found in the database")
 
+        # updating phone
         if 'phone_select' in request.form:
             phone = CriminalPhone.query.get((id, request.form['phone_select']))
             if phone:
@@ -99,9 +101,43 @@ def get_criminal(id):
 
     else: # GET request
         criminal = Criminal.query.get(id)
+        if criminal is None:
+            abort(404, description="No criminal found with the provided ID.")
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
         return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences)
+    
+@app.route('/crime/<int:id>', methods=['GET', 'POST'])
+def get_crime(id):
+    if request.method == 'POST':
+        # add user authentication before proceeding
+        crime = Crime.query.get(id)
+        if not crime:
+            return 'Crime not found', 404
+
+        # update the fine
+        if 'fine' in request.form:
+            crime.fine = request.form['fine']
+        
+        # update the amount paid
+        if 'amount_paid' in request.form:
+            crime.amount_paid = request.form['amount_paid']
+
+        # update the payment due date
+        if 'payment_due_date' in request.form:
+            crime.payment_due_date = request.form['payment_due_date']
+
+        # update the court fee
+        if 'court_fee' in request.form:
+            crime.court_fee = request.form['court_fee']
+
+        db.session.commit()
+        return redirect(url_for('get_crime', id=id))
+    else:
+        crime = Crime.query.get(id)
+        if crime is None:
+            abort(404, description="No crime found with the provided ID.")
+        return render_template('crime.html', crime=crime)
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

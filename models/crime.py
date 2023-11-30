@@ -8,5 +8,6 @@ class Crime(db.Model):
     fine = db.Column(db.Float)
     amount_paid = db.Column(db.Float)
     payment_due_date = db.Column(db.DateTime)
+    court_fee = db.Column(db.Float)
 
     criminal = db.relationship('Criminal', backref=db.backref('crimes', lazy=True))

@@ -115,7 +115,7 @@
                 <tbody>
                 {% for crime in crimes %}
                     <tr>
-                        <td>{{ crime.crime_id }}</td>
+                        <td><a href="{{ url_for('get_crime', id=crime.crime_id) }}">{{ crime.crime_id }}</a></td>
                         <td>{{ crime.fine }}</td>
                         <td>{{ crime.amount_paid }}</td>
                         <td>{{ crime.payment_due_date }}</td>

@@ -1,0 +1,105 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container">
+    <div>                
+        <strong>Crime {{ crime.crime_id }} Report</strong>
+    </div>
+    <div class="info-edit">
+        <div class="info">
+            <span><strong>CRIME ID: </strong>{{ crime.crime_id }}</span>
+            <span><strong>FINE: </strong>${{ "%.2f"|format(crime.fine) }}</span>
+            <span><strong>AMOUNT PAID: </strong>${{ crime.crime_id }}</span>
+            <span><strong>PAYMENT DUE DATE: </strong>{{ crime.payment_due_date }}</span>
+            <span><strong>COURT FEE: </strong>${{ "%.2f"|format(crime.court_fee) }}</span>
+        </div>
+        
+
+        <!-- Button to Open the Modal -->
+        <button id="edit-crime">Edit</button>
+
+        <!-- The Modal -->
+        <div id="crime-modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="edit_crime_form" action="/crime/{{ crime.crime_id }}" method="post">
+                    <div>
+                        <label for="fine">Fine</label>
+                        <input type="number" id="fine" name="fine" value="{{ crime.fine }}">
+                    </div>
+                    <div>
+                        <label for="amount_paid">Amount paid</label>
+                        <input type="number" id="amount_paid" name="amount_paid" value="{{ crime.amount_paid }}">
+                    </div>
+                    <div>
+                        <label for="payment_due_date">Payment due date</label>
+                        <input type="date" id="payment_due_date" name="payment_due_date" value="{{ crime.payment_due_date }}">
+                    </div>
+                    <div>
+                        <label for="court_fee">Court fee</label>
+                        <input type="number" id="court_fee" name="court_fee" value="{{ crime.court_fee }}">
+                    </div>
+                    <div>
+                        <button type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="tables">
+        <div>
+            <strong>Crimes</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Crime ID</th>
+                        <th>Fine</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for crime in crimes %}
+                    <tr>
+                        <td><a href="{{ url_for('get_crime', id=crime.crime_id) }}">{{ crime.crime_id }}</a></td>
+                        <td>{{ crime.fine }}</td>
+                        <td>{{ crime.amount_paid }}</td>
+                        <td>{{ crime.payment_due_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <strong>Sentences</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sentence ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Number of Violations</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for sentence in sentences %}
+                    <tr>
+                        <td>{{ sentence.sentence_id }}</td>
+                        <td>{{ sentence.start_date }}</td>
+                        <td>{{ sentence.end_date }}</td>
+                        <td>{{ sentence.num_violations }}</td>
+                        <td>{{ sentence.type }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='crime.js') }}"></script>
+{% endblock %}
+{% endblock %}
