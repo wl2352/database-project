@@ -11,3 +11,4 @@ class Crime(db.Model):
     court_fee = db.Column(db.Float)
 
     criminal = db.relationship('Criminal', backref=db.backref('crimes', lazy=True))
+    appeals = db.relationship('Appeal', backref=db.backref('crime', lazy=True))

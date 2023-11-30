@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <div>                
-        <strong>{{ criminal.name }} </strong>
+        <h2>{{ criminal.name }} </h2>
         {% if criminal.aliases|length > 0 %}
             (
             {% for alias in criminal.aliases %}

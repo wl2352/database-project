@@ -8,8 +8,6 @@ class Criminal(db.Model):
     violent_status = db.Column(db.Boolean)
     probation_status = db.Column(db.Boolean)
 
-    def __repr__(self):
-        return '<Criminal %r>' % self.name
     
     def serialize(self):
         return {

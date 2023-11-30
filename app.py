@@ -119,19 +119,19 @@ def get_crime(id):
             return 'Crime not found', 404
 
         # update the fine
-        if 'fine' in request.form:
+        if 'fine' in request.form and request.form['fine']:
             crime.fine = request.form['fine']
         
         # update the amount paid
-        if 'amount_paid' in request.form:
+        if 'amount_paid' in request.form and request.form['amount_paid']:
             crime.amount_paid = request.form['amount_paid']
 
         # update the payment due date
-        if 'payment_due_date' in request.form:
+        if 'payment_due_date' in request.form and request.form['payment_due_date']:
             crime.payment_due_date = request.form['payment_due_date']
 
         # update the court fee
-        if 'court_fee' in request.form:
+        if 'court_fee' in request.form and request.form['court_fee']:
             crime.court_fee = request.form['court_fee']
 
         db.session.commit()
@@ -150,10 +150,38 @@ def get_crime(id):
 @app.route('/appeal/<int:id>', methods=['GET', 'POST'])
 def get_appeal(id):
     if request.method == 'POST':
+        # add user authentication before proceeding
+        appeals = Appeal.query.get(id)
+        if not appeals:
+            return 'Appeal not found', 404
+
+        # update the appeal status
+        if 'appeal_status' in request.form and request.form['appeal_status']:
+            appeals.appeal_status = request.form['appeal_status']
+
+        # update the hearing date
+        if 'hearing_date' in request.form and request.form['hearing_date']:
+            appeals.hearing_date = request.form['hearing_date']
+
+        # update the filing date
+        if 'filing_date' in request.form and request.form['filing_date']:
+            appeals.filing_date = request.form['filing_date']
+
+        db.session.commit()
+        return redirect(url_for('get_appeal', id=id))
+    else:
+        appeals = Appeal.query.get(id)
+        if appeals is None:
+            abort(404, description="No appeal found with the provided ID.")
+        criminal = appeals.crime.criminal
+        return render_template('appeal.html', appeal=appeals, criminal=criminal)
+
+@app.route('/sentence/<int:id>', methods=['GET', 'POST'])
+def get_sentence(id):
+    if request.method == 'POST':
         pass
     else:
         pass
-
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

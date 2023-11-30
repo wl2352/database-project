@@ -7,6 +7,11 @@ button {
     padding: 10px;
 }
 
+h2 {
+    margin: 0;
+    padding: 0;
+}
+
 a {
     text-decoration: none;
     color: #337ab7;
@@ -90,7 +95,7 @@ body {
 /* LOGIN */
 
 
-h1 {
+#title {
     text-align: center;
     padding: 20px;
 }

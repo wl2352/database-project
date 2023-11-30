@@ -1,0 +1,54 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Appeal {{ appeal.appeal_id }} Report</h2>
+    <div class="info-edit">
+        <div class="info">
+            <span><strong>APPEAL ID: </strong>{{ appeal.appeal_id }}</span>
+            <span><strong>CRIMINAL ID: </strong> <a href="{{ url_for('get_criminal', id=criminal.criminal_id) }}">{{ criminal.criminal_id }} ({{ criminal.name }})</a>
+            </span>
+            <span><strong>APPEAL STATUS: </strong>{{ appeal.appeal_status }}</span>
+            <span><strong>HEARING DATE: </strong>{{ appeal.hearing_date }}</span>
+            <span><strong>FILING DATE: </strong>{{ appeal.filing_date }}</span>
+        </div>
+        
+
+        <!-- Button to Open the Modal -->
+        <button id="edit-appeal">Edit</button>
+
+        <!-- The Modal -->
+        <div id="appeal-modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="edit_appeal_form" action="/appeal/{{ appeal.appeal_id }}" method="post">
+                    <div>
+                        <label for="appeal_status">Appeal status</label>
+                        <select id="appeal_status" name="appeal_status">
+                            <option value="Pending" {% if appeal.appeal_status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Approved" {% if appeal.appeal_status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option value="Denied" {% if appeal.appeal_status == 'Denied' %}selected{% endif %}>Denied</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hearing_date">Hearing date</label>
+                        <input type="date" id="hearing_date" name="hearing_date" value="{{ appeal.hearing_date }}">
+                    </div>
+                    <div>
+                        <label for="filing_date">Filing date</label>
+                        <input type="date" id="filing_date" name="filing_date" value="{{ appeal.filing_date }}">
+                    </div>
+                    <div>
+                        <button type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='appeal.js') }}"></script>
+{% endblock %}
+{% endblock %}
