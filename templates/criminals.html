@@ -7,12 +7,15 @@
         {% for criminal in criminals %}
         <li>
             <a href="{{ url_for('get_criminal', id=criminal.criminal_id) }}">
-                ID: {{ criminal.criminal_id }}, Name: {{ criminal.name }}, Aliases:
-                <ul>
-                    {% for alias in criminal.aliases %}
-                    <li>{{ alias.alias_name }}</li>
-                    {% endfor %}
-                </ul>
+                ID: {{ criminal.criminal_id }}, Name: {{ criminal.name }}
+                {% if criminal.aliases %}
+                (
+                {% for alias in criminal.aliases %}
+                    {{ alias.alias_name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                )
+            {% endif %}
+
             </a>
         </li>
         {% endfor %}
