@@ -139,7 +139,7 @@
                 <tbody>
                 {% for sentence in sentences %}
                     <tr>
-                        <td>{{ sentence.sentence_id }}</td>
+                        <td><a href="{{ url_for('get_sentence', id=sentence.sentence_id) }}">{{ sentence.sentence_id }}</a></td>
                         <td>{{ sentence.start_date }}</td>
                         <td>{{ sentence.end_date }}</td>
                         <td>{{ sentence.num_violations }}</td>

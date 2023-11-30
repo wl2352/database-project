@@ -1,0 +1,55 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Sentence {{ sentence.sentence_id }} Report</h2>
+    <div class="info-edit">
+        <div class="info">
+            <span><strong>SENTENCE ID: </strong>{{ sentence.sentence_id }}</span>
+            <span><strong>CRIMINAL ID: </strong> <a href="{{ url_for('get_criminal', id=criminal.criminal_id) }}">{{ criminal.criminal_id }} ({{ criminal.name }})</a>
+            </span>
+            <span><strong>START DATE: </strong>{{ sentence.start_date }}</span>
+            <span><strong>END DATE: </strong>{{ sentence.end_date }}</span>
+            <span><strong>TYPE: </strong>{{ sentence.type }}</span>
+            <span><strong># VIOLATIONS: </strong>{{ sentence.num_violations }}</span>
+        </div>
+        
+
+        <!-- Button to Open the Modal -->
+        <button id="edit-sentence">Edit</button>
+
+        <!-- The Modal -->
+        <div id="sentence-modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="edit_sentence_form" action="/sentence/{{ sentence.sentence_id }}" method="post">
+                    <div>
+                        <label for="start_date">Start date</label>
+                        <input type="date" id="start_date" name="start_date" value="{{ sentence.start_date }}">
+                    </div>
+                    <div>
+                        <label for="end_date">End date</label>
+                        <input type="date" id="end_date" name="end_date" value="{{ sentence.end_date }}">
+                    </div>
+                    <div>
+                        <label for="type">Type</label>
+                        <input type="text" id="type" name="type" value="{{ sentence.type }}">
+                    </div>
+                    <div>
+                        <label for="num_violations"># Violations</label>
+                        <input type="number" id="num_violations" name="num_violations" value="{{ sentence.num_violations }}">
+                    </div>
+                    <div>
+                        <button type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='sentence.js') }}"></script>
+{% endblock %}
+{% endblock %}

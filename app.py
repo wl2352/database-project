@@ -32,11 +32,11 @@ def list_of_criminals():
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST'])
 def get_criminal(id):
+    criminal = Criminal.query.get(id)
+    if not criminal:
+        abort(404, description="No criminal found with the provided ID.")    
     if request.method == 'POST':
         # add user authentication before proceeding
-        criminal = Criminal.query.get(id)
-        if not criminal:
-            return 'Criminal not found', 404
 
         # updating name
         if 'name' in request.form:
@@ -103,20 +103,17 @@ def get_criminal(id):
         return redirect(url_for('get_criminal', id=id))
 
     else: # GET request
-        criminal = Criminal.query.get(id)
-        if criminal is None:
-            abort(404, description="No criminal found with the provided ID.")
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
         return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences)
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST'])
 def get_crime(id):
+    criminal = Criminal.query.get(id)
+    if criminal is None:
+        abort(404, description="No crime found with the provided ID.")
     if request.method == 'POST':
         # add user authentication before proceeding
-        crime = Crime.query.get(id)
-        if not crime:
-            return 'Crime not found', 404
 
         # update the fine
         if 'fine' in request.form and request.form['fine']:
@@ -145,15 +142,16 @@ def get_crime(id):
         appeals = Appeal.query.filter_by(crime_id=id).all()
         crime_officers = CrimeOfficer.query.filter_by(crime_id=id).all()  # query for officers associated with the crime
         officers = [crime_officer.officer for crime_officer in crime_officers]  # get the Officer objects
-        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers)
+        criminal = crime.criminal
+        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal)
 
 @app.route('/appeal/<int:id>', methods=['GET', 'POST'])
 def get_appeal(id):
+    appeals = Appeal.query.get(id)
+    if appeals is None:
+        abort(404, description="No appeal found with the provided ID.")
     if request.method == 'POST':
         # add user authentication before proceeding
-        appeals = Appeal.query.get(id)
-        if not appeals:
-            return 'Appeal not found', 404
 
         # update the appeal status
         if 'appeal_status' in request.form and request.form['appeal_status']:
@@ -170,18 +168,38 @@ def get_appeal(id):
         db.session.commit()
         return redirect(url_for('get_appeal', id=id))
     else:
-        appeals = Appeal.query.get(id)
-        if appeals is None:
-            abort(404, description="No appeal found with the provided ID.")
         criminal = appeals.crime.criminal
         return render_template('appeal.html', appeal=appeals, criminal=criminal)
 
 @app.route('/sentence/<int:id>', methods=['GET', 'POST'])
 def get_sentence(id):
+    sentences = Sentence.query.get(id)
+    if not sentences:
+        abort(404, description="No sentence found with the provided ID.")
     if request.method == 'POST':
-        pass
+        # add user authentication before proceeding
+
+        # update the start date
+        if 'start_date' in request.form and request.form['start_date']:
+            sentences.start_date = request.form['start_date']
+
+        # update the end date
+        if 'end_date' in request.form and request.form['end_date']:
+            sentences.end_date = request.form['end_date']
+
+        # update the type
+        if 'type' in request.form and request.form['type']:
+            sentences.type = request.form['type']
+
+        # update the num violations
+        if 'num_violations' in request.form and request.form['num_violations']:
+            sentences.num_violations = request.form['num_violations']
+
+        db.session.commit()
+        return redirect(url_for('get_sentence', id=id))
     else:
-        pass
+        criminal = sentences.criminal
+        return render_template('sentence.html', sentence=sentences, criminal=criminal)
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

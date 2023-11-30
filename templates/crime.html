@@ -6,6 +6,7 @@
     <div class="info-edit">
         <div class="info">
             <span><strong>CRIME ID: </strong>{{ crime.crime_id }}</span>
+            <span><strong>CRIMINAL ID: </strong> <a href="{{ url_for('get_criminal', id=criminal.criminal_id) }}">{{ criminal.criminal_id }} ({{ criminal.name }})</a></span>
             <span><strong>CHARGE CODES: </strong>
                 {{ charge_codes|join(", ") }}
             </span>
