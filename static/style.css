@@ -1,3 +1,5 @@
+/* NAVBAR */
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -16,12 +18,15 @@ body {
     padding: 0;
 }
 
+/* LOGIN */
+
+
 h1 {
     text-align: center;
     padding: 20px;
 }
 
-.login {
+.login-signup {
     width: 300px;
     margin: 0 auto;
     background-color: #fff;
@@ -38,7 +43,7 @@ label {
     margin-bottom: 5px;
 }
 
-.login input[type="text"], .login input[type="password"] {
+.login-signup input[type="text"], .login-signup input[type="password"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -57,11 +62,11 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-.login input[type="submit"]:hover {
+.login-signup input[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-.login button {
+.login-signup button {
     display: block;
     width: 100%;
     padding: 10px;
@@ -73,6 +78,7 @@ input[type="submit"] {
     margin-top: 10px;
 }
 
-.login button:hover {
+.login-signup button:hover {
     background-color: #5a6268;
 }
+
