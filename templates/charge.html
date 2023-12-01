@@ -1,0 +1,44 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container">
+    <div>                
+        <h2>{{ charge.classification }} </h2>
+    </div>
+    <div class="info-edit">
+        <div class="info">
+            <span><strong>CHARGE CODE: </strong>{{ charge.charge_code }}</span>
+        </div>
+        
+    </div>
+
+    <div class="tables">
+        <div>
+            <strong>Crimes</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Crime ID</th>
+                        <th>Fine</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for crime in crimes %}
+                    <tr>
+                        <td>{{ crime.crime_id }}</a></td>
+                        <td>{{ crime.fine }}</td>
+                        <td>{{ crime.amount_paid }}</td>
+                        <td>{{ crime.payment_due_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='charge.js') }}"></script>
+{% endblock %}
+{% endblock %}

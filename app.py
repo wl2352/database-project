@@ -13,7 +13,7 @@ from models.officer import Officer
 from models.crime_officer import CrimeOfficer
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/updated_criminal'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 db.init_app(app)
 
@@ -30,6 +30,16 @@ def signup():
 def list_of_criminals():
     criminals = Criminal.query.all()
     return render_template('criminals.html', criminals=criminals)
+
+@app.route('/officers/')
+def list_of_officers():
+    officers = Officer.query.all()
+    return render_template('officers.html', officers=officers)
+
+@app.route('/charges/')
+def list_of_charges():
+    charges = Charge.query.all()
+    return render_template('charges.html', charges=charges)
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST'])
 def get_criminal(id):
@@ -202,6 +212,15 @@ def get_sentence(id):
         criminal = sentences.criminal
         return render_template('sentence.html', sentence=sentences, criminal=criminal)
 
+@app.route('/charge/<int:id>', methods=['GET'])
+def get_charges(id):
+    charge = Charge.query.filter_by(charge_code=id).first()
+    charges = Charge.query.filter_by(charge_code=id).all()
+    crimes = [crime.crime for crime in charges]
+    if not charges:
+        abort(404, description="No charge found with the provided ID.")
+    return render_template('charge.html', charge=charge, crime=crimes)
+    
 @app.route('/officer/<int:id>', methods=['GET', 'POST'])
 def get_officer(id):
     officers = Officer.query.get(id)

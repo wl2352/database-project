@@ -1,0 +1,17 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div>
+    <h1>List of Charges</h1>
+    <ul>
+        {% for charge in charges %}
+        <li>
+            <a href="{{ url_for('get_charges', id=charge.charge_code) }}">
+                ID: {{ charge.charge_code }}, Classification: {{ charge.classification }}
+
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

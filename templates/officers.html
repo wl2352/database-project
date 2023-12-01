@@ -1,0 +1,17 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div>
+    <h1>List of Officers</h1>
+    <ul>
+        {% for officer in officers %}
+        <li>
+            <a href="{{ url_for('get_officer', id=officer.badge_no) }}">
+                ID: {{ officer.badge_no }}, Name: {{ officer.name }}
+
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
