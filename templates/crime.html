@@ -88,7 +88,7 @@
                 <tbody>
                 {% for officer in officers %}
                     <tr>
-                        <td>{{ officer.badge_no }}</td>
+                        <td><a href="{{ url_for('get_officer', id=officer.badge_no) }}">{{ officer.badge_no }}</a></td>
                         <td>{{ officer.name }}</td>
                         <td>{{ officer.precinct }}</td>
                         <td>{{ officer.status }}</td>

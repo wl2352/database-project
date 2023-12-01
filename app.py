@@ -4,12 +4,13 @@ from models.criminal import Criminal
 from models.alias import Alias
 from models.address import Address
 from models.criminal_phone import CriminalPhone
+from models.officer_phone import OfficerPhone
 from models.crime import Crime
 from models.sentences import Sentence
 from models.charge import Charge
 from models.appeal import Appeal
 from models.officer import Officer
-from models.CrimeOfficer import CrimeOfficer
+from models.crime_officer import CrimeOfficer
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
@@ -207,9 +208,35 @@ def get_officer(id):
     if not officers:
         abort(404, description="No officer found with the provided ID.")
     if request.method == 'POST':
-        pass
+        print(request.form)
+        # updating name
+        if 'name' in request.form:
+            officers.name = request.form['name']
+        # updating precinct
+        if 'precinct' in request.form:
+            officers.precinct = request.form['precinct']
+        # updating status
+        if 'status' in request.form:
+            officers.status = True
+        else:
+            officers.status = False
+        # updating phone
+        if 'phone_select' in request.form:
+            phone = OfficerPhone.query.get((id, request.form['phone_select']))
+            if phone:
+                if 'delete_phone' in request.form:
+                    db.session.delete(phone)
+                else:
+                    new_phone = request.form['phone']
+                    # phone number is given and unique
+                    if new_phone and OfficerPhone.query.filter_by(o_phone_number=new_phone, badge_no=id).first() is None:
+                        phone.o_phone_number = new_phone
+                    else:
+                        print('phone not unique or empty')
+        db.session.commit()
+        return redirect(url_for('get_officer', id=id))
     else:
-        pass
+        return render_template('officer.html', officer=officers)
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

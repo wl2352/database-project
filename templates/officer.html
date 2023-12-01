@@ -22,7 +22,7 @@
         
 
         <!-- Button to Open the Modal -->
-        <button id="edit-officer">Edit</button>
+        <button id="edit-officer" class="edit">Edit</button>
 
         <!-- The Modal -->
         <div id="officer-modal" class="modal">
@@ -53,10 +53,9 @@
                         <label for="precinct">Precinct</label>
                         <input type="text" id="precinct" name="precinct" value="{{ officer.precinct }}">
                     </div>
-                    <div>
+                    <div class="delete-checkbox">
                         <label for="status">Status</label>
-                        <input type="checkbox" id="status-phone" name="status" checked="{{ officer.status }}">
-                    </div>
+                        <input type="checkbox" id="status" name="status" {% if officer.status %}checked{% endif %}>                    </div>
                     <div>
                         <button type="submit">Save changes</button>
                     </div>
@@ -78,37 +77,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for crime in crimes %}
+                {% for crime_officer in officer.crime_officers %}
                     <tr>
-                        <td><a href="{{ url_for('get_crime', id=crime.crime_id) }}">{{ crime.crime_id }}</a></td>
-                        <td>{{ crime.fine }}</td>
-                        <td>{{ crime.amount_paid }}</td>
-                        <td>{{ crime.payment_due_date }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <strong>Sentences</strong>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sentence ID</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Number of Violations</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for sentence in sentences %}
-                    <tr>
-                        <td><a href="{{ url_for('get_sentence', id=sentence.sentence_id) }}">{{ sentence.sentence_id }}</a></td>
-                        <td>{{ sentence.start_date }}</td>
-                        <td>{{ sentence.end_date }}</td>
-                        <td>{{ sentence.num_violations }}</td>
-                        <td>{{ sentence.type }}</td>
+                        <td><a href="{{ url_for('get_crime', id=crime_officer.crime.crime_id) }}">{{ crime_officer.crime.crime_id }}</a></td>
+                        <td>{{ crime_officer.crime.fine }}</td>
+                        <td>{{ crime_officer.crime.amount_paid }}</td>
+                        <td>{{ crime_officer.crime.payment_due_date }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -117,6 +91,6 @@
     </div>
 </div>
 {% block scripts %}
-<script src="{{ url_for('static', filename='officer.js') }}"></script>
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
 {% endblock %}
 {% endblock %}
