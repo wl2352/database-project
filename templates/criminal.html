@@ -30,7 +30,7 @@
         
 
         <!-- Button to Open the Modal -->
-        <button id="edit-criminal">Edit</button>
+        <button id="edit-criminal" class="edit">Edit</button>
 
         <!-- The Modal -->
         <div id="criminal-modal" class="modal">
@@ -152,6 +152,6 @@
     </div>
 </div>
 {% block scripts %}
-<script src="{{ url_for('static', filename='criminal.js') }}"></script>
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
 {% endblock %}
 {% endblock %}

@@ -16,7 +16,7 @@
         
 
         <!-- Button to Open the Modal -->
-        <button id="edit-sentence">Edit</button>
+        <button id="edit-sentence" class="edit">Edit</button>
 
         <!-- The Modal -->
         <div id="sentence-modal" class="modal">
@@ -50,6 +50,6 @@
 
 </div>
 {% block scripts %}
-<script src="{{ url_for('static', filename='sentence.js') }}"></script>
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
 {% endblock %}
 {% endblock %}

@@ -1,5 +1,5 @@
-const modal = document.getElementById("appeal-modal");
-const btn = document.getElementById("edit-appeal");
+const modal = document.getElementsByClassName('modal')[0];
+const btn = document.getElementsByClassName('edit')[0];
 const span = document.getElementsByClassName("close")[0];
 
 btn.onclick = function() {

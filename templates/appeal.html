@@ -15,7 +15,7 @@
         
 
         <!-- Button to Open the Modal -->
-        <button id="edit-appeal">Edit</button>
+        <button id="edit-appeal" class="edit">Edit</button>
 
         <!-- The Modal -->
         <div id="appeal-modal" class="modal">
@@ -49,6 +49,6 @@
 
 </div>
 {% block scripts %}
-<script src="{{ url_for('static', filename='appeal.js') }}"></script>
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
 {% endblock %}
 {% endblock %}

@@ -201,5 +201,15 @@ def get_sentence(id):
         criminal = sentences.criminal
         return render_template('sentence.html', sentence=sentences, criminal=criminal)
 
+@app.route('/officer/<int:id>', methods=['GET', 'POST'])
+def get_officer(id):
+    officers = Officer.query.get(id)
+    if not officers:
+        abort(404, description="No officer found with the provided ID.")
+    if request.method == 'POST':
+        pass
+    else:
+        pass
+
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

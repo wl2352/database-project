@@ -1,0 +1,122 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container">
+    <div>                
+        <h2>{{ officer.name }} ({{ officer.badge_no }}) </h2>
+    </div>
+    <div class="info-edit">
+        <div class="info">
+            <span><strong>BADGE NO: </strong>{{ officer.badge_no }}</span>
+            <span><strong>PRECINCT: </strong>{{ officer.precinct }}</span>
+            <span>
+                <strong>STATUS: </strong>
+                {{ officer.status }}
+            </span>
+            <span><strong>PHONE NUMBERS: </strong>
+                {% for phone in officer.phones %}
+                    {{ phone.o_phone_number }}
+                {% endfor %}
+            </span>
+        </div>
+        
+
+        <!-- Button to Open the Modal -->
+        <button id="edit-officer">Edit</button>
+
+        <!-- The Modal -->
+        <div id="officer-modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="edit_officer_form" action="/officer/{{ officer.badge_no }}" method="post">
+                    <div>
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" value="{{ officer.name }}">
+                    </div>
+                    <div class="edit-multi">
+                        <div>
+                            <label for="phone-select">Phone Number</label>
+                            <select id="phone-select" name="phone_select">
+                                {% for phone in officer.phones %}
+                                    <option value="{{ phone.o_phone_number }}">{{ phone.o_phone_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="delete-checkbox">
+                            <label for="delete-phone">Delete selected phone number?</label>
+                            <input type="checkbox" id="delete-phone" name="delete_phone">
+                        </div>
+                        <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
+                    </div>
+                    <div>
+                        <label for="precinct">Precinct</label>
+                        <input type="text" id="precinct" name="precinct" value="{{ officer.precinct }}">
+                    </div>
+                    <div>
+                        <label for="status">Status</label>
+                        <input type="checkbox" id="status-phone" name="status" checked="{{ officer.status }}">
+                    </div>
+                    <div>
+                        <button type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="tables">
+        <div>
+            <strong>Crimes</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Crime ID</th>
+                        <th>Fine</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for crime in crimes %}
+                    <tr>
+                        <td><a href="{{ url_for('get_crime', id=crime.crime_id) }}">{{ crime.crime_id }}</a></td>
+                        <td>{{ crime.fine }}</td>
+                        <td>{{ crime.amount_paid }}</td>
+                        <td>{{ crime.payment_due_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <strong>Sentences</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sentence ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Number of Violations</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for sentence in sentences %}
+                    <tr>
+                        <td><a href="{{ url_for('get_sentence', id=sentence.sentence_id) }}">{{ sentence.sentence_id }}</a></td>
+                        <td>{{ sentence.start_date }}</td>
+                        <td>{{ sentence.end_date }}</td>
+                        <td>{{ sentence.num_violations }}</td>
+                        <td>{{ sentence.type }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script src="{{ url_for('static', filename='officer.js') }}"></script>
+{% endblock %}
+{% endblock %}
