@@ -219,7 +219,7 @@ def get_charges(id):
     crimes = [crime.crime for crime in charges]
     if not charges:
         abort(404, description="No charge found with the provided ID.")
-    return render_template('charge.html', charge=charge, crime=crimes)
+    return render_template('charge.html', charge=charge, crimes=crimes)
     
 @app.route('/officer/<int:id>', methods=['GET', 'POST'])
 def get_officer(id):
