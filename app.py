@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, make_response
+from sqlalchemy import distinct
 from datetime import datetime
 from config import db
 from models.criminal import Criminal
@@ -88,6 +89,35 @@ def add_sentence():
 
     return make_response(jsonify({'message': 'Sentence has been created'}), 200)
     
+@app.route('/crimes', methods=['POST'])
+def create_crime():
+    data = request.get_json()
+    
+    new_crime = Crime(
+        criminal_id=data['criminal_id'],
+        fine=data['fine'],
+        amount_paid=data['amount_paid'],
+        payment_due_date=data['payment_due_date'],
+        court_fee=data['court_fee']
+    )
+    
+    try:
+        db.session.add(new_crime)
+        db.session.commit()
+
+        # add charges associated with the crime
+        for charge_code in data['charge_codes']:
+            new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id)
+            db.session.add(new_charge)
+
+        db.session.commit()
+        return jsonify(message='New crime and associated charges created'), 201
+
+    except Exception as e:
+        # rollback the transaction
+        db.session.rollback()
+        return jsonify(message=str(e)), 400
+
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_criminal(id):
@@ -195,10 +225,12 @@ def get_criminal(id):
         db.session.commit()
         return make_response(jsonify({'message': 'Criminal has been deleted'}), 200)
     else: # GET request
+        # get all unique charge codes
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).distinct().all()        
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
         now = datetime.now().strftime('%Y-%m-%d')
-        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now)
+        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now, charges=charges)
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_crime(id):

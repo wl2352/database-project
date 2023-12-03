@@ -55,6 +55,7 @@ async function deletePrompt(type, id) {
                     alert('Something went wrong')
                 }
             }
+            break;
         case 'sentence':
             inp = confirm('Delete this sentence?')
             if (inp) {
@@ -69,6 +70,7 @@ async function deletePrompt(type, id) {
                     alert('Something went wrong')
                 }
             }
+            break;
         case 'officer':
             inp = confirm('Delete this officer? All related date will be deleted.');
             if (inp) {
@@ -82,5 +84,6 @@ async function deletePrompt(type, id) {
                     alert('Something went wrong')
                 }
             }
+            break;
     }
 }

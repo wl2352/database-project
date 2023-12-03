@@ -39,7 +39,11 @@
 
     <div class="tables">
         <div>
-            <strong>Crimes</strong>
+            <div class="table-add">
+                <strong>Crimes</strong>
+                <!-- Button to open the modal for new crime -->    
+                <button class="add modal-btn">Add New</button>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -174,6 +178,43 @@
 </div>
 </div>
 
+<!-- The Modal for adding a new crime -->
+<div class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="add_crime_form" action="/crimes" method="post" data-criminal-id="{{ criminal.criminal_id }}">         
+            <div>
+                <div style="padding-bottom: 5px;">Charge Codes (select at least one)</div>
+                <div class="delete-checkbox">
+                    {% for charge in charges %}
+                        <input type="checkbox" id="charge_code_{{ charge[0] }}" name="charges" value="{{ charge[0] }}">
+                        <label for="charge_code_{{ charge[0] }}">{{ charge[0] }} - {{ charge[1] }}</label><br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+                <label for="fine">Fine</label>
+                <input type="number" id="fine" name="fine" required>            
+            </div>
+            <div>
+                <label for="amount_paid">Amount paid</label>
+                <input type="number" id="amount_paid" name="amount_paid" required>            
+            </div>
+            <div>
+                <label for="payment_due_date">Payment due date</label>
+                <input type="date" id="payment_due_date" name="payment_due_date" value="{{ now }}" required>            
+            </div>
+            <div>
+                <label for="court_fee">Court fee</label>
+                <input type="number" id="court_fee" name="court_fee" required>            
+            </div>
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- The Modal for adding a new sentence -->
 <div class="modal">
@@ -203,7 +244,6 @@
         </form>
     </div>
 </div>
-
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
