@@ -15,8 +15,11 @@
         </div>
         
 
-        <!-- Button to Open the Modal -->
-        <button id="edit-sentence" class="edit">Edit</button>
+        <div class="edit-delete">
+            <button class="delete" onclick="deletePrompt('sentence', '{{ sentence.sentence_id }}')">Delete</button>    
+            <!-- Button to Open the Modal -->        
+            <button id="edit-sentence" class="edit">Edit</button>
+        </div>
 
         <!-- The Modal -->
         <div id="sentence-modal" class="modal">

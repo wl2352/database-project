@@ -146,9 +146,6 @@ def get_criminal(id):
         db.session.commit()
         return redirect(url_for('get_criminal', id=id))
     elif request.method == 'DELETE':
-        criminal = Criminal.query.get(id)
-        if criminal is None:
-            return make_response(jsonify({'message': 'No criminal found with this ID'}), 404)
         db.session.delete(criminal)
         db.session.commit()
         return make_response(jsonify({'message': 'Criminal has been deleted'}), 200)
@@ -157,7 +154,7 @@ def get_criminal(id):
         sentences = Sentence.query.filter_by(criminal_id=id).all()
         return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences)
     
-@app.route('/crime/<int:id>', methods=['GET', 'POST'])
+@app.route('/crime/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_crime(id):
     crime = Crime.query.get(id)
     if crime is None:
@@ -183,6 +180,12 @@ def get_crime(id):
 
         db.session.commit()
         return redirect(url_for('get_crime', id=id))
+    
+    elif request.method == 'DELETE':
+        db.session.delete(crime)
+        db.session.commit()
+        return make_response(jsonify({'message': 'Crime has been deleted'}), 200)
+    
     else:
         charges = Charge.query.filter_by(crime_id=id).all()
         charge_codes = [str(charge.charge_code) for charge in charges]
@@ -218,35 +221,39 @@ def get_appeal(id):
         criminal = appeals.crime.criminal
         return render_template('appeal.html', appeal=appeals, criminal=criminal)
 
-@app.route('/sentence/<int:id>', methods=['GET', 'POST'])
+@app.route('/sentence/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_sentence(id):
-    sentences = Sentence.query.get(id)
-    if not sentences:
+    sentence = Sentence.query.get(id)
+    if not sentence:
         abort(404, description="No sentence found with the provided ID.")
     if request.method == 'POST':
         # add user authentication before proceeding
 
         # update the start date
         if 'start_date' in request.form and request.form['start_date']:
-            sentences.start_date = request.form['start_date']
+            sentence.start_date = request.form['start_date']
 
         # update the end date
         if 'end_date' in request.form and request.form['end_date']:
-            sentences.end_date = request.form['end_date']
+            sentence.end_date = request.form['end_date']
 
         # update the type
         if 'type' in request.form and request.form['type']:
-            sentences.type = request.form['type']
+            sentence.type = request.form['type']
 
         # update the num violations
         if 'num_violations' in request.form and request.form['num_violations']:
-            sentences.num_violations = request.form['num_violations']
+            sentence.num_violations = request.form['num_violations']
 
         db.session.commit()
         return redirect(url_for('get_sentence', id=id))
+    elif request.method == 'DELETE':
+        db.session.delete(sentence)
+        db.session.commit()
+        return make_response(jsonify({'message': 'Sentence has been deleted'}), 200)
     else:
-        criminal = sentences.criminal
-        return render_template('sentence.html', sentence=sentences, criminal=criminal)
+        criminal = sentence.criminal
+        return render_template('sentence.html', sentence=sentence, criminal=criminal)
 
 @app.route('/charge/<int:id>', methods=['GET'])
 def get_charges(id):
@@ -257,24 +264,24 @@ def get_charges(id):
         abort(404, description="No charge found with the provided ID.")
     return render_template('charge.html', charge=charge, crimes=crimes)
     
-@app.route('/officer/<int:id>', methods=['GET', 'POST'])
+@app.route('/officer/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_officer(id):
-    officers = Officer.query.get(id)
-    if not officers:
+    officer = Officer.query.get(id)
+    if not officer:
         abort(404, description="No officer found with the provided ID.")
     if request.method == 'POST':
         print(request.form)
         # updating name
         if 'name' in request.form:
-            officers.name = request.form['name']
+            officer.name = request.form['name']
         # updating precinct
         if 'precinct' in request.form:
-            officers.precinct = request.form['precinct']
+            officer.precinct = request.form['precinct']
         # updating status
         if 'status' in request.form:
-            officers.status = True
+            officer.status = True
         else:
-            officers.status = False
+            officer.status = False
         # updating phone
         if 'phone_select' in request.form:
             phone = OfficerPhone.query.get((id, request.form['phone_select']))
@@ -290,8 +297,13 @@ def get_officer(id):
                         print('phone not unique or empty')
         db.session.commit()
         return redirect(url_for('get_officer', id=id))
+    
+    elif request.method == 'DELETE':
+        db.session.delete(officer)
+        db.session.commit()
+        return make_response(jsonify({'message': 'Officer has been deleted'}), 200)
     else:
-        return render_template('officer.html', officer=officers)
+        return render_template('officer.html', officer=officer)
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

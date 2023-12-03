@@ -18,9 +18,11 @@
             <span><strong>COURT FEE: </strong>${{ "%.2f"|format(crime.court_fee) }}</span>
         </div>
         
-
-        <!-- Button to Open the Modal -->
-        <button id="edit-crime" class="edit">Edit</button>
+        <div class="edit-delete">
+            <button class="delete" onclick="deletePrompt('crime', '{{ crime.crime_id }}')">Delete</button>        
+            <!-- Button to Open the Modal -->    
+            <button id="edit-crime" class="edit">Edit</button>
+        </div>
 
         <!-- The Modal -->
         <div id="crime-modal" class="modal">

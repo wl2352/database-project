@@ -7,3 +7,7 @@ class Officer(db.Model):
     name = db.Column(db.String(250))
     precinct = db.Column(db.Integer)
     status = db.Column(db.Boolean)
+
+    crime_officers = db.relationship('CrimeOfficer', back_populates='officer', lazy=True, cascade='all, delete-orphan')
+    phones = db.relationship('OfficerPhone', back_populates='officer', cascade='all, delete-orphan', lazy=True)
+
