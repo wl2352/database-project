@@ -15,7 +15,7 @@
             </span>
             <span><strong>PHONE NUMBERS: </strong>
                 {% for phone in officer.phones %}
-                    {{ phone.o_phone_number }}
+                    {{ phone.o_phone_number }} {% if not loop.last %} | {% endif %}
                 {% endfor %}
             </span>
         </div>
@@ -50,6 +50,10 @@
                             <input type="checkbox" id="delete-phone" name="delete_phone">
                         </div>
                         <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
+                        <div>
+                            <label for="add-phone">Add a new phone:</label>
+                            <input type="text" id="add-phone" name="add_phone" />
+                        </div>
                     </div>
                     <div>
                         <label for="precinct">Precinct</label>

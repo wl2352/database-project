@@ -20,43 +20,19 @@
         
         <div class="edit-delete">
             <button class="delete" onclick="deletePrompt('crime', '{{ crime.crime_id }}')">Delete</button>        
-            <!-- Button to Open the Modal -->    
-            <button id="edit-crime" class="edit">Edit</button>
+            <!-- Button to open the modal for editing -->    
+            <button id="edit-crime" class="edit modal-btn">Edit</button>
         </div>
 
-        <!-- The Modal -->
-        <div id="crime-modal" class="modal">
-            <!-- Modal content -->
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <form id="edit_crime_form" action="/crime/{{ crime.crime_id }}" method="post">
-                    <div>
-                        <label for="fine">Fine</label>
-                        <input type="number" id="fine" name="fine" value="{{ crime.fine }}">
-                    </div>
-                    <div>
-                        <label for="amount_paid">Amount paid</label>
-                        <input type="number" id="amount_paid" name="amount_paid" value="{{ crime.amount_paid }}">
-                    </div>
-                    <div>
-                        <label for="payment_due_date">Payment due date</label>
-                        <input type="date" id="payment_due_date" name="payment_due_date" value="{{ crime.payment_due_date }}">
-                    </div>
-                    <div>
-                        <label for="court_fee">Court fee</label>
-                        <input type="number" id="court_fee" name="court_fee" value="{{ crime.court_fee }}">
-                    </div>
-                    <div>
-                        <button type="submit">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     <div class="tables">
         <div>
-            <strong>Appeals</strong>
+            <div class="table-add">
+                <strong>Appeals</strong>
+                <!-- Button to open the modal for new appeal -->    
+                <button id="add-appeal" class="add modal-btn">Add New</button>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -103,7 +79,66 @@
         </div>
     </div>
 </div>
+
+<!-- The Modal for editing -->
+<div id="crime-modal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="edit_crime_form" action="/crime/{{ crime.crime_id }}" method="post">
+            <div>
+                <label for="fine">Fine</label>
+                <input type="number" id="fine" name="fine" value="{{ crime.fine }}">
+            </div>
+            <div>
+                <label for="amount_paid">Amount paid</label>
+                <input type="number" id="amount_paid" name="amount_paid" value="{{ crime.amount_paid }}">
+            </div>
+            <div>
+                <label for="payment_due_date">Payment due date</label>
+                <input type="date" id="payment_due_date" name="payment_due_date" value="{{ crime.payment_due_date }}">
+            </div>
+            <div>
+                <label for="court_fee">Court fee</label>
+                <input type="number" id="court_fee" name="court_fee" value="{{ crime.court_fee }}">
+            </div>
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- The Modal for adding new appeal -->
+<div id="crime-modal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="add_appeal_form" action="/appeals" method="post" data-crime-id="{{ crime.crime_id }}">         
+            <div>
+                <label for="filing_date">Filing date</label>
+                <input type="date" id="filing_date" name="filing_date" value="{{ now }}">
+            </div>
+            <div>
+                <label for="hearing_date">Hearing date</label>
+                <input type="date" id="hearing_date" name="hearing_date" value="{{ now }}">            </div>
+            <div>
+                <label for="appeal_status">Appeal status</label>
+                <select id="appeal_status" name="appeal_status">
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Denied">Denied</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
+<script src="{{ url_for('static', filename='crime.js') }}"></script>
 {% endblock %}
 {% endblock %}

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, make_response
+from datetime import datetime
 from config import db
 from models.criminal import Criminal
 from models.alias import Alias
@@ -42,14 +43,35 @@ def list_of_charges():
     charges = Charge.query.all()
     return render_template('charges.html', charges=charges)
 
+@app.route('/appeals', methods=['POST'])
+def add_appeal():
+    data = request.get_json()
+
+    # make sure crime exists
+    crime_id = data['crime_id']
+    crime = Crime.query.get(crime_id)
+    if crime is None:
+        return make_response(jsonify({'message': 'No crime found with this ID'}), 404)
+
+    new_appeal = Appeal( 
+        crime_id=crime_id, 
+        filing_date=data['filing_date'], 
+        hearing_date=data['hearing_date'], 
+        appeal_status=data['appeal_status']
+    )
+
+    db.session.add(new_appeal)
+    db.session.commit()
+
+    return make_response(jsonify({'message': 'Appeal has been created'}), 200)
+    
+
 @app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_criminal(id):
     criminal = Criminal.query.get(id)
     if not criminal:
         abort(404, description="No criminal found with the provided ID.")    
     if request.method == 'POST':
-        print('form is ', request.form)
-
         # add user authentication before proceeding
 
         # updating name
@@ -193,7 +215,8 @@ def get_crime(id):
         crime_officers = CrimeOfficer.query.filter_by(crime_id=id).all()  # query for officers associated with the crime
         officers = [crime_officer.officer for crime_officer in crime_officers]  # get the Officer objects
         criminal = crime.criminal
-        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal)
+        now = datetime.now().strftime('%Y-%m-%d')
+        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal, now=now)
 
 @app.route('/appeal/<int:id>', methods=['GET', 'POST'])
 def get_appeal(id):
@@ -295,6 +318,15 @@ def get_officer(id):
                         phone.o_phone_number = new_phone
                     else:
                         print('phone not unique or empty')
+        
+        # adding a new phone
+        if request.form['add_phone']:
+            new_phone = request.form['add_phone']
+            if OfficerPhone.query.filter_by(o_phone_number=new_phone, badge_no=id).first() is None:
+                phone = OfficerPhone(o_phone_number=new_phone, badge_no=id)
+                db.session.add(phone)
+            else:
+                print("Phone not unique")
         db.session.commit()
         return redirect(url_for('get_officer', id=id))
     
@@ -304,6 +336,7 @@ def get_officer(id):
         return make_response(jsonify({'message': 'Officer has been deleted'}), 200)
     else:
         return render_template('officer.html', officer=officer)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

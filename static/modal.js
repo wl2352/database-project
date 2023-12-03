@@ -1,6 +1,28 @@
-const modal = document.getElementsByClassName('modal')[0];
-const btn = document.getElementsByClassName('edit')[0];
-const span = document.getElementsByClassName("close")[0];
+const modals = document.getElementsByClassName('modal');
+const btns = document.getElementsByClassName('modal-btn');
+const spans = document.getElementsByClassName("close");
+
+let openModal = null; // keep track of the open modal
+
+for (let i = 0; i < btns.length; i++) {
+    btns[i].onclick = function() {
+        modals[i].style.display = "block";
+        openModal = modals[i]; // This modal is now open
+    }
+
+    spans[i].onclick = function() {
+        modals[i].style.display = "none";
+        openModal = null; // No modal is open
+    }
+}
+
+window.onclick = function(event) {
+    // theres an open modal and the click was outside of it, close it
+    if (openModal && event.target == openModal) {
+        openModal.style.display = "none";
+        openModal = null;
+    }
+}
 
 async function deletePrompt(type, id) {
     let inp;
@@ -60,19 +82,5 @@ async function deletePrompt(type, id) {
                     alert('Something went wrong')
                 }
             }
-    }
-}
-
-btn.onclick = function() {
-    modal.style.display = "block";
-}
-
-span.onclick = function() {
-    modal.style.display = "none";
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
     }
 }

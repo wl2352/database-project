@@ -53,7 +53,16 @@ label {
     background-color: white;
     padding: 10px;
     border-radius: 10px;
+}
 
+.table-add {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-add button {
+    background-color: green;
 }
 
 table {
