@@ -23,7 +23,7 @@
         <div class="edit-delete">
             <button class="delete" onclick="deletePrompt('officer', '{{ officer.badge_no }}')">Delete</button>    
             <!-- Button to Open the Modal -->        
-            <button id="edit-officer" class="edit">Edit</button>
+            <button id="edit-officer" class="edit modal-btn">Edit</button>
         </div>
 
         <!-- The Modal -->
@@ -31,7 +31,7 @@
             <!-- Modal content -->
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <form id="edit_officer_form" action="/officer/{{ officer.badge_no }}" method="post">
+                <form id="edit_officer_form" data-officer-id="{{ officer.badge_no }}">
                     <div>
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" value="{{ officer.name }}">
@@ -40,6 +40,7 @@
                         <div>
                             <label for="phone-select">Phone Number</label>
                             <select id="phone-select" name="phone_select">
+                                <option></option>
                                 {% for phone in officer.phones %}
                                     <option value="{{ phone.o_phone_number }}">{{ phone.o_phone_number }}</option>
                                 {% endfor %}
@@ -61,7 +62,8 @@
                     </div>
                     <div class="delete-checkbox">
                         <label for="status">Status</label>
-                        <input type="checkbox" id="status" name="status" {% if officer.status %}checked{% endif %}>                    </div>
+                        <input type="checkbox" id="status" name="status" {% if officer.status %}checked{% endif %}>                    
+                    </div>
                     <div>
                         <button type="submit">Save changes</button>
                     </div>
@@ -98,5 +100,7 @@
 </div>
 {% block scripts %}
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
+<script src="{{ url_for('static', filename='officer.js') }}"></script>
+
 {% endblock %}
 {% endblock %}

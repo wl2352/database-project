@@ -143,7 +143,6 @@ def get_criminal(id):
         # add user authentication before proceeding
 
         form = request.get_json()
-        print(f'FORM IS f{form}')
 
         # updating name
         criminal.name = form['name']
@@ -367,43 +366,41 @@ def get_officer(id):
     if not officer:
         abort(404, description="No officer found with the provided ID.")
     if request.method == 'POST':
-        print(request.form)
+        # user auth
+
+        form = request.get_json()
         # updating name
-        if 'name' in request.form:
-            officer.name = request.form['name']
+        officer.name = form['name']
         # updating precinct
-        if 'precinct' in request.form:
-            officer.precinct = request.form['precinct']
+        if form['precinct']:
+            officer.precinct = form['precinct']
         # updating status
-        if 'status' in request.form:
-            officer.status = True
-        else:
-            officer.status = False
+        officer.status = form['status']
         # updating phone
-        if 'phone_select' in request.form:
-            phone = OfficerPhone.query.get((id, request.form['phone_select']))
+        if form['phone_select']:
+            phone = OfficerPhone.query.get((id, form['phone_select']))
             if phone:
-                if 'delete_phone' in request.form:
+                if form['delete_phone']:
                     db.session.delete(phone)
                 else:
-                    new_phone = request.form['phone']
+                    new_phone = form['phone']
                     # phone number is given and unique
                     if new_phone and OfficerPhone.query.filter_by(o_phone_number=new_phone, badge_no=id).first() is None:
                         phone.o_phone_number = new_phone
                     else:
-                        print('phone not unique or empty')
+                        return jsonify(message="Modified phone number is empty or not unique"), 400
         
         # adding a new phone
-        if request.form['add_phone']:
-            new_phone = request.form['add_phone']
+        if form['add_phone']:
+            new_phone = form['add_phone']
             if OfficerPhone.query.filter_by(o_phone_number=new_phone, badge_no=id).first() is None:
                 phone = OfficerPhone(o_phone_number=new_phone, badge_no=id)
                 db.session.add(phone)
             else:
-                print("Phone not unique")
+                return jsonify(message="New phone number is not unique"), 400
         db.session.commit()
-        return redirect(url_for('get_officer', id=id))
-    
+        return jsonify(message="Success"), 201
+
     elif request.method == 'DELETE':
         db.session.delete(officer)
         db.session.commit()
