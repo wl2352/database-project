@@ -15,12 +15,18 @@ from models.officer import Officer
 from models.crime_officer import CrimeOfficer
 
 app = Flask(__name__)
-# after logging in, sign in to database either as a root (for admins) or visitor user
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/updated_criminal'
+DB_GUEST_URI = 'mysql+pymysql://guestuser:@localhost:3306/project'
+DB_MAIN_URI = 'mysql+pymysql://root:@localhost:3306/project'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 db.init_app(app)
 
+def set_guest():
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_GUEST_URI
+
+def set_admin():
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 
 @app.route('/')
 def login():
