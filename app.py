@@ -38,8 +38,11 @@ def signup():
 
 @app.route('/criminals')
 def list_of_criminals():
+    charges = Charge.query.filter_by(crime_id=id).all()
+    charge_codes = [str(charge.charge_code) for charge in charges]
     criminals = Criminal.query.all()
-    return render_template('criminals.html', criminals=criminals)
+    now = datetime.now().strftime('%Y-%m-%d')
+    return render_template('criminals.html', criminals=criminals, charge_codes=charge_codes, now=now)
 
 @app.route('/officers/')
 def list_of_officers():
@@ -139,51 +142,54 @@ def get_criminal(id):
     if request.method == 'POST':
         # add user authentication before proceeding
 
+        form = request.get_json()
+        print(f'FORM IS f{form}')
+
         # updating name
-        if 'name' in request.form:
-            criminal.name = request.form['name']
+        criminal.name = form['name']
         
         # updating an alias
-        if request.form['alias_select'] and ('delete_alias' in request.form or request.form['alias']):
-            alias = Alias.query.get((request.form['alias_select'], id))
+        if form['alias_select'] and (form['delete_alias'] or form['alias']):
+            alias = Alias.query.get((form['alias_select'], id))
             if alias:
-                if 'delete_alias' in request.form:
+                if form['delete_alias']:
                     db.session.delete(alias)
                 else:
-                    new_alias = request.form['alias']
+                    new_alias = form['alias']
                     # make sure user provided an alias and its unique
                     if new_alias and Alias.query.filter_by(alias_name=new_alias, criminal_id=id).first() is None:
                         alias.alias_name = new_alias
                     else:
-                        print('alias not unique or its empty')
+                        return jsonify(message="Modified alias is not unique"), 400
+
             else:
-                print('alias not found')
+                return jsonify(message="Alias not found"), 400
         
         # adding a new alias
-        if request.form['add_alias']:
-            alias_name = request.form.get('add_alias')
+        if form['add_alias']:
+            alias_name = form.get('add_alias')
             # make sure its unique
             if Alias.query.filter_by(alias_name=alias_name, criminal_id=id).first() is None:
                 new_alias = Alias(alias_name=alias_name, criminal_id=id)
                 db.session.add(new_alias)
             else:
-                print('alias is not unique')
+                return jsonify(message="New alias is not unique"), 400
 
 
         # updating an address
-        if request.form['address_select'] and ('delete_address' in request.form or request.form['street_address']):
-            selected_address = request.form['address_select'].split(', ')
+        if form['address_select'] and (form['delete_address'] or form['street_address']):
+            selected_address = form['address_select'].split(', ')
             street_address, city, state, zip_code = selected_address[0], selected_address[1], selected_address[2], int(selected_address[3])
             address = Address.query.get((id, street_address, zip_code))
     
             if address:
-                if 'delete_address' in request.form:
+                if form['delete_address']:
                     db.session.delete(address)
                 else:
-                    new_street_address = request.form['street_address']
-                    new_city = request.form['city']
-                    new_state = request.form['state']
-                    new_zip_code = request.form['zip_code']
+                    new_street_address = form['street_address']
+                    new_city = form['city']
+                    new_state = form['state']
+                    new_zip_code = form['zip_code']
                     # PKs are provided and are unique
                     if new_street_address and new_city and new_state and new_zip_code and Address.query.filter_by(criminal_id=id, street_address=new_street_address, zip_code=new_zip_code).first() is None:
                         address.street_address = new_street_address
@@ -191,47 +197,47 @@ def get_criminal(id):
                         address.state = new_state
                         address.zip_code = new_zip_code
                     else:
-                        print("Address not unique or empty")
+                        return jsonify(message="Updated address is not unique"), 400
             else:
-                print("Address not found in the database")
+                return jsonify(message="Cannot find selected address"), 400
 
         # adding a new address
-        if request.form['add_address']:
-            new_address = request.form['add_address'].split(', ')
+        if form['add_address']:
+            new_address = form['add_address'].split(', ')
             street_address, city, state, zip_code = new_address[0], new_address[1], new_address[2], int(new_address[3])
             if Address.query.filter_by(street_address=street_address, criminal_id=id, zip_code=zip_code).first() is None:
                 address = Address(criminal_id=id, street_address=street_address, city=city, state=state, zip_code=zip_code)
                 db.session.add(address)
             else:
-                print("Address not unique")
+                return jsonify(message="New address is not unique"), 400
 
         # updating phone
-        if request.form['phone_select'] and ('delete_phone' in request.form or request.form['phone']):
-            phone = CriminalPhone.query.get((id, request.form['phone_select']))
+        if form['phone_select'] and (form['delete_phone'] or form['phone']):
+            phone = CriminalPhone.query.get((id, form['phone_select']))
             if phone:
-                if 'delete_phone' in request.form:
+                if form['delete_phone']:
                     db.session.delete(phone)
                 else:
-                    new_phone = request.form['phone']
+                    new_phone = form['phone']
                     # phone number is given and unique
                     if new_phone and CriminalPhone.query.filter_by(c_phone_number=new_phone, criminal_id=id).first() is None:
                         phone.c_phone_number = new_phone
                     else:
-                        print('phone not unique or empty')
+                        return jsonify(message="Selected phone is not unique"), 400
             else:
-                print('phone not found')
+                return jsonify(message="Cannot find selected phone"), 400
 
         # adding a new phone
-        if request.form['add_phone']:
-            new_phone = request.form['add_phone']
+        if form['add_phone']:
+            new_phone = form['add_phone']
             if CriminalPhone.query.filter_by(c_phone_number=new_phone, criminal_id=id).first() is None:
                 phone = CriminalPhone(c_phone_number=new_phone, criminal_id=id)
                 db.session.add(phone)
             else:
-                print("Phone not unique")
+                return jsonify(message="New phone is not unique"), 400
 
         db.session.commit()
-        return redirect(url_for('get_criminal', id=id))
+        return jsonify(message="Success"), 201
     elif request.method == 'DELETE':
         db.session.delete(criminal)
         db.session.commit()

@@ -3,7 +3,7 @@ from config import db
 class Criminal(db.Model):
     __tablename__ = 'criminal'
 
-    criminal_id = db.Column(db.Integer, primary_key=True)
+    criminal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100))
     violent_status = db.Column(db.Boolean)
     probation_status = db.Column(db.Boolean)

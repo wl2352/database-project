@@ -3,6 +3,8 @@
 {% block content %}
 <div>
     <h1>List of Criminals</h1>
+    <!-- Button to open the modal for new criminal -->    
+    <button class="add modal-btn">Add New</button>
     <ul>
         {% for criminal in criminals %}
         <li>
@@ -21,4 +23,95 @@
         {% endfor %}
     </ul>
 </div>
+
+
+
+<!-- The Modal for adding a new criminal -->
+<div class="modal">
+    <!-- Modal content -->
+    <div class="modal-content" id="new-criminal-modal">
+        <span class="close">&times;</span>
+        <form id="add_criminal_form" action="/criminals" method="post">
+            <!-- criminal details -->
+
+            <div>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name">
+            </div>
+
+            <div>
+                <label for="add-alias">Add a new alias:</label>
+                <input type="text" id="add-alias" name="add_alias" />
+            </div>
+
+            <div>
+                <label for="add-address">Add a new address (street address, city, state, zip code):</label>
+                <input type="text" id="add-address" name="add_address" />
+            </div>
+
+            <div>
+                <label for="add-phone">Add a new phone:</label>
+                <input type="text" id="add-phone" name="add_phone" />
+            </div>
+            
+            <!-- adding a new crime -->
+            <div>
+                <div style="padding-bottom: 5px;">Charge Codes (select at least one)</div>
+                <div class="delete-checkbox">
+                    {% for charge in charges %}
+                        <input type="checkbox" id="charge_code_{{ charge[0] }}" name="charges" value="{{ charge[0] }}">
+                        <label for="charge_code_{{ charge[0] }}">{{ charge[0] }} - {{ charge[1] }}</label><br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+                <label for="fine">Fine</label>
+                <input type="number" id="fine" name="fine" required>            
+            </div>
+            <div>
+                <label for="amount_paid">Amount paid</label>
+                <input type="number" id="amount_paid" name="amount_paid" required>            
+            </div>
+            <div>
+                <label for="payment_due_date">Payment due date</label>
+                <input type="date" id="payment_due_date" name="payment_due_date" value="{{ now }}" required>            
+            </div>
+            <div>
+                <label for="court_fee">Court fee</label>
+                <input type="number" id="court_fee" name="court_fee" required>            
+            </div>
+
+            <!-- adding a new sentence -->
+
+            <div>
+                <label for="start_date">Start date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ now }}" required>
+            </div>
+            <div>
+                <label for="end_date">End date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ now }}" required>            
+            </div>
+            <div>
+                <label for="num_violations">Number of violations</label>
+                <input type="number" id="num_violations" name="num_violations" required>            
+            </div>
+            <div>
+                <label for="type">Type</label>
+                <input type="text" id="type" name="type" required>            
+            </div>
+
+
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
+<script src="{{ url_for('static', filename='criminals.js') }}"></script>
+
+{% endblock %}
 {% endblock %}

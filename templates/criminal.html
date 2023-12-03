@@ -103,7 +103,7 @@
     <!-- Modal content -->
     <div class="modal-content">
         <span class="close">&times;</span>
-        <form id="edit_criminal_form" action="/criminal/{{ criminal.criminal_id }}" method="post">
+        <form id="edit_criminal_form" data-criminal-id="{{ criminal.criminal_id }}">
             <div>
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" value="{{ criminal.name }}">
@@ -112,8 +112,9 @@
                 <div>
                     <label for="alias-select">Alias</label>
                     <select id="alias-select" name="alias_select">
+                        <option></option>
                         {% for alias in criminal.aliases %}
-                            <option value="{{ alias.alias_name }}">{{ alias.alias_name }}</option>
+                            <option>{{ alias.alias_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -131,6 +132,7 @@
                 <div>
                     <label for="address-select">Address</label>
                     <select id="address-select" name="address_select">
+                        <option></option>
                         {% for address in criminal.addresses %}
                             <option value="{{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}">{{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}</option>
                         {% endfor %}
@@ -155,6 +157,7 @@
                 <div>
                     <label for="phone-select">Phone Number</label>
                     <select id="phone-select" name="phone_select">
+                        <option></option>
                         {% for phone in criminal.phones %}
                             <option value="{{ phone.c_phone_number }}">{{ phone.c_phone_number }}</option>
                         {% endfor %}
