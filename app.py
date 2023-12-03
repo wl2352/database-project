@@ -65,6 +65,29 @@ def add_appeal():
 
     return make_response(jsonify({'message': 'Appeal has been created'}), 200)
     
+@app.route('/sentences', methods=['POST'])
+def add_sentence():
+    data = request.get_json()
+
+    # make sure criminal exists
+    criminal_id = data['criminal_id']
+    criminal = Criminal.query.get(criminal_id)
+    if criminal is None:
+        return make_response(jsonify({'message': 'No criminal found with this ID'}), 404)
+
+    new_sentence = Sentence( 
+        criminal_id=criminal_id, 
+        start_date=data['start_date'], 
+        end_date=data['end_date'], 
+        num_violations=data['num_violations'],
+        type=data['type']
+    )
+
+    db.session.add(new_sentence)
+    db.session.commit()
+
+    return make_response(jsonify({'message': 'Sentence has been created'}), 200)
+    
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_criminal(id):
@@ -174,7 +197,8 @@ def get_criminal(id):
     else: # GET request
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
-        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences)
+        now = datetime.now().strftime('%Y-%m-%d')
+        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now)
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_crime(id):

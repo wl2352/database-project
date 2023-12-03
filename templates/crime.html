@@ -81,7 +81,7 @@
 </div>
 
 <!-- The Modal for editing -->
-<div id="crime-modal" class="modal">
+<div class="modal">
     <!-- Modal content -->
     <div class="modal-content">
         <span class="close">&times;</span>
@@ -110,21 +110,21 @@
 </div>
 
 <!-- The Modal for adding new appeal -->
-<div id="crime-modal" class="modal">
+<div class="modal">
     <!-- Modal content -->
     <div class="modal-content">
         <span class="close">&times;</span>
         <form id="add_appeal_form" action="/appeals" method="post" data-crime-id="{{ crime.crime_id }}">         
             <div>
                 <label for="filing_date">Filing date</label>
-                <input type="date" id="filing_date" name="filing_date" value="{{ now }}">
+                <input type="date" id="filing_date" name="filing_date" value="{{ now }}" required>
             </div>
             <div>
                 <label for="hearing_date">Hearing date</label>
-                <input type="date" id="hearing_date" name="hearing_date" value="{{ now }}">            </div>
+                <input type="date" id="hearing_date" name="hearing_date" value="{{ now }}" required>            </div>
             <div>
                 <label for="appeal_status">Appeal status</label>
-                <select id="appeal_status" name="appeal_status">
+                <select id="appeal_status" name="appeal_status" required>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Denied">Denied</option>

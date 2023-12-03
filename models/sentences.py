@@ -3,7 +3,7 @@ from config import db
 class Sentence(db.Model):
     __tablename__ = 'sentences'
 
-    sentence_id = db.Column(db.Integer, primary_key=True)
+    sentence_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     criminal_id = db.Column(db.Integer, db.ForeignKey('criminal.criminal_id'))
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
