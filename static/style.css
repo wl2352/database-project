@@ -35,6 +35,16 @@ label {
     display: inline-block;
 }
 
+.edit-delete {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.delete {
+    background-color: red;
+}
+
 /* tables */
 .tables {
     display: flex;

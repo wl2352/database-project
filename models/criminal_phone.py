@@ -6,4 +6,4 @@ class CriminalPhone(db.Model):
     criminal_id = db.Column(db.Integer, db.ForeignKey('criminal.criminal_id'), primary_key=True)
     c_phone_number = db.Column(db.String(15), primary_key=True)
 
-    criminal = db.relationship('Criminal', backref=db.backref('phones', lazy=True))
+    criminal = db.relationship('Criminal', back_populates='phones')

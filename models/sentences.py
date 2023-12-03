@@ -10,4 +10,4 @@ class Sentence(db.Model):
     num_violations = db.Column(db.Integer)
     type = db.Column(db.String(150))
 
-    criminal = db.relationship('Criminal', backref=db.backref('sentences', lazy=True))
+    criminal = db.relationship('Criminal', back_populates='sentences')

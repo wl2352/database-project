@@ -8,3 +8,5 @@ class Appeal(db.Model):
     filing_date = db.Column(db.Date)
     hearing_date = db.Column(db.Date)
     appeal_status = db.Column(db.String(150))
+
+    crime = db.relationship('Crime', back_populates='appeals')

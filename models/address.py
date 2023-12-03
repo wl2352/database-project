@@ -10,7 +10,7 @@ class Address(db.Model):
     zip_code = db.Column(db.Integer, primary_key=True)
 
     # Relationship with Criminal Model
-    criminal = db.relationship('Criminal', backref=db.backref('addresses', lazy=True))
+    criminal = db.relationship('Criminal', back_populates='addresses')
 
     def __repr__(self):
         return '<Address %r>' % self.street_address

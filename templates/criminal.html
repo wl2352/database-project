@@ -30,7 +30,9 @@
         
 
         <!-- Button to Open the Modal -->
-        <button id="edit-criminal" class="edit">Edit</button>
+        <div class="edit-delete">
+            <button class="delete" onclick="deletePrompt('criminal', '{{ criminal.criminal_id }}')">Delete</button>            <button id="edit-criminal" class="edit">Edit</button>
+        </div>
 
         <!-- The Modal -->
         <div id="criminal-modal" class="modal">

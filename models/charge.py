@@ -6,4 +6,5 @@ class Charge(db.Model):
     charge_code = db.Column(db.Integer, primary_key=True)
     crime_id = db.Column(db.Integer, db.ForeignKey('crime.crime_id'), primary_key=True)
     classification = db.Column(db.String(150))
-    crime = db.relationship('Crime', backref=db.backref('crime', lazy=True))
+
+    crime = db.relationship('Crime', back_populates='charges')

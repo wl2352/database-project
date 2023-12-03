@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, make_response
 from config import db
 from models.criminal import Criminal
 from models.alias import Alias
@@ -42,7 +42,7 @@ def list_of_charges():
     charges = Charge.query.all()
     return render_template('charges.html', charges=charges)
 
-@app.route('/criminal/<int:id>', methods=['GET', 'POST'])
+@app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
 def get_criminal(id):
     criminal = Criminal.query.get(id)
     if not criminal:
@@ -145,7 +145,13 @@ def get_criminal(id):
 
         db.session.commit()
         return redirect(url_for('get_criminal', id=id))
-
+    elif request.method == 'DELETE':
+        criminal = Criminal.query.get(id)
+        if criminal is None:
+            return make_response(jsonify({'message': 'No criminal found with this ID'}), 404)
+        db.session.delete(criminal)
+        db.session.commit()
+        return make_response(jsonify({'message': 'Criminal has been deleted'}), 200)
     else: # GET request
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
@@ -153,8 +159,8 @@ def get_criminal(id):
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST'])
 def get_crime(id):
-    criminal = Criminal.query.get(id)
-    if criminal is None:
+    crime = Crime.query.get(id)
+    if crime is None:
         abort(404, description="No crime found with the provided ID.")
     if request.method == 'POST':
         # add user authentication before proceeding
@@ -178,9 +184,6 @@ def get_crime(id):
         db.session.commit()
         return redirect(url_for('get_crime', id=id))
     else:
-        crime = Crime.query.get(id)
-        if crime is None:
-            abort(404, description="No crime found with the provided ID.")
         charges = Charge.query.filter_by(crime_id=id).all()
         charge_codes = [str(charge.charge_code) for charge in charges]
         appeals = Appeal.query.filter_by(crime_id=id).all()
