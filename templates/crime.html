@@ -8,7 +8,9 @@
             <span><strong>CRIME ID: </strong>{{ crime.crime_id }}</span>
             <span><strong>CRIMINAL ID: </strong> <a href="{{ url_for('get_criminal', id=criminal.criminal_id) }}">{{ criminal.criminal_id }} ({{ criminal.name }})</a></span>
             <span><strong>CHARGE CODES: </strong>
-                {{ charge_codes|join(", ") }}
+                {% for code in charge_codes %}
+                    <a href="/charge/{{ code }}">{{ code }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
             </span>
             <span><strong>FINE: </strong>${{ "%.2f"|format(crime.fine) }}</span>
             <span><strong>AMOUNT PAID: </strong>${{ crime.crime_id }}</span>
