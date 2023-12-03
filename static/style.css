@@ -31,6 +31,10 @@ li {
     margin-bottom: 10px;
 }
 
+label {
+    display: inline-block;
+}
+
 /* tables */
 .tables {
     display: flex;
@@ -110,11 +114,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
 }
 
 .login-signup input[type="text"], .login-signup input[type="password"] {

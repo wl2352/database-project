@@ -13,7 +13,8 @@ from models.officer import Officer
 from models.crime_officer import CrimeOfficer
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/updated_criminal'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/updated_criminal'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 db.init_app(app)
 
@@ -47,6 +48,8 @@ def get_criminal(id):
     if not criminal:
         abort(404, description="No criminal found with the provided ID.")    
     if request.method == 'POST':
+        print('form is ', request.form)
+
         # add user authentication before proceeding
 
         # updating name
@@ -54,7 +57,7 @@ def get_criminal(id):
             criminal.name = request.form['name']
         
         # updating an alias
-        if 'alias_select' in request.form:
+        if request.form['alias_select'] and ('delete_alias' in request.form or request.form['alias']):
             alias = Alias.query.get((request.form['alias_select'], id))
             if alias:
                 if 'delete_alias' in request.form:
@@ -65,12 +68,23 @@ def get_criminal(id):
                     if new_alias and Alias.query.filter_by(alias_name=new_alias, criminal_id=id).first() is None:
                         alias.alias_name = new_alias
                     else:
-                        print('alias not unique or empty')
+                        print('alias not unique or its empty')
             else:
                 print('alias not found')
+        
+        # adding a new alias
+        if request.form['add_alias']:
+            alias_name = request.form.get('add_alias')
+            # make sure its unique
+            if Alias.query.filter_by(alias_name=alias_name, criminal_id=id).first() is None:
+                new_alias = Alias(alias_name=alias_name, criminal_id=id)
+                db.session.add(new_alias)
+            else:
+                print('alias is not unique')
+
 
         # updating an address
-        if 'address_select' in request.form:
+        if request.form['address_select'] and ('delete_address' in request.form or request.form['street_address']):
             selected_address = request.form['address_select'].split(', ')
             street_address, city, state, zip_code = selected_address[0], selected_address[1], selected_address[2], int(selected_address[3])
             address = Address.query.get((id, street_address, zip_code))
@@ -94,8 +108,18 @@ def get_criminal(id):
             else:
                 print("Address not found in the database")
 
+        # adding a new address
+        if request.form['add_address']:
+            new_address = request.form['add_address'].split(', ')
+            street_address, city, state, zip_code = new_address[0], new_address[1], new_address[2], int(new_address[3])
+            if Address.query.filter_by(street_address=street_address, criminal_id=id, zip_code=zip_code).first() is None:
+                address = Address(criminal_id=id, street_address=street_address, city=city, state=state, zip_code=zip_code)
+                db.session.add(address)
+            else:
+                print("Address not unique")
+
         # updating phone
-        if 'phone_select' in request.form:
+        if request.form['phone_select'] and ('delete_phone' in request.form or request.form['phone']):
             phone = CriminalPhone.query.get((id, request.form['phone_select']))
             if phone:
                 if 'delete_phone' in request.form:
@@ -109,6 +133,15 @@ def get_criminal(id):
                         print('phone not unique or empty')
             else:
                 print('phone not found')
+
+        # adding a new phone
+        if request.form['add_phone']:
+            new_phone = request.form['add_phone']
+            if CriminalPhone.query.filter_by(c_phone_number=new_phone, criminal_id=id).first() is None:
+                phone = CriminalPhone(c_phone_number=new_phone, criminal_id=id)
+                db.session.add(phone)
+            else:
+                print("Phone not unique")
 
         db.session.commit()
         return redirect(url_for('get_criminal', id=id))

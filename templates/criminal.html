@@ -17,13 +17,13 @@
             <span><strong>CRIMINAL ID: </strong>{{ criminal.criminal_id }}</span>
             <span><strong>PHONE NUMBERS: </strong>
                 {% for phone in criminal.phones %}
-                    {{ phone.c_phone_number }}
+                    {{ phone.c_phone_number }} {% if not loop.last %} | {% endif %}
                 {% endfor %}
             </span>
             <span>
                 <strong>ADDRESSES: </strong>
                 {% for address in criminal.addresses %}
-                    {{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}
+                    {{ address.street_address }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }} {% if not loop.last %} | {% endif %}
                 {% endfor %}
             </span>
         </div>
@@ -56,6 +56,10 @@
                             <input type="checkbox" id="delete-alias" name="delete_alias">
                         </div>
                         <input type="text" id="alias" name="alias" placeholder="Edit selected alias">
+                        <div>
+                            <label for="add-alias">Add a new alias:</label>
+                            <input type="text" id="add-alias" name="add_alias" />
+                        </div>
                     </div>
                     <div class="edit-multi">
                         <div>
@@ -76,6 +80,10 @@
                             <input type="text" id="state" name="state" placeholder="Edit state">
                             <input type="text" id="zip-code" name="zip_code" placeholder="Edit zip code">
                         </div>
+                        <div>
+                            <label for="add-address">Add a new address (street address, city, state, zip code):</label>
+                            <input type="text" id="add-address" name="add_address" />
+                        </div>
                     </div>
                     <div class="edit-multi">
                         <div>
@@ -91,6 +99,10 @@
                             <input type="checkbox" id="delete-phone" name="delete_phone">
                         </div>
                         <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
+                        <div>
+                            <label for="add-phone">Add a new phone:</label>
+                            <input type="text" id="add-phone" name="add_phone" />
+                        </div>
                     </div>
                     <div>
                         <button type="submit">Save changes</button>
