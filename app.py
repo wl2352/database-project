@@ -15,6 +15,7 @@ from models.officer import Officer
 from models.crime_officer import CrimeOfficer
 
 app = Flask(__name__)
+# after logging in, sign in to database either as a root (for admins) or visitor user
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/project'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/updated_criminal'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
@@ -106,8 +107,13 @@ def create_crime():
         db.session.commit()
 
         # add charges associated with the crime
+        charges = Charge.query.all()
+
+        # dictionary where each charge_code maps to its classification
+        charge_classifications = {charge.charge_code: charge.classification for charge in charges}
+
         for charge_code in data['charge_codes']:
-            new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id)
+            new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id, classification=charge_classifications[int(charge_code)])
             db.session.add(new_charge)
 
         db.session.commit()
