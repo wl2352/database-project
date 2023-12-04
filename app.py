@@ -172,7 +172,7 @@ def list_of_officers():
 
 @app.route('/charges/')
 def list_of_charges():
-    charges = Charge.query.all()
+    charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).all()
     return render_template('charges.html', charges=charges)
 
 @app.route('/appeals', methods=['POST'])
