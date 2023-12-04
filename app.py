@@ -537,8 +537,31 @@ def get_officer(id):
         db.session.commit()
         return make_response(jsonify({'message': 'Officer has been deleted'}), 200)
     else:
-        return render_template('officer.html', officer=officer)
+        crimes = Crime.query.all()
+        return render_template('officer.html', officer=officer, crimes=crimes)
 
+@app.route('/officer/<int:id>/crimes', methods=['POST'])
+def update_officer_crimes(id):
+    officer = Officer.query.get(id)
+    crimes = Crime.query.all()
+
+    for crime in crimes:
+        # get corresponding CrimeOfficer if it exists
+        crime_officer = CrimeOfficer.query.filter_by(badge_no=id, crime_id=crime.crime_id).first()
+
+        # check if theres a corresponding checkbox in the form
+        if 'crime_' + str(crime.crime_id) in request.form:
+            # crime_officer doesnt exist and checkbox is checked, so create one
+            if crime_officer is None:
+                new_crime_officer = CrimeOfficer(badge_no=id, crime_id=crime.crime_id)
+                db.session.add(new_crime_officer)
+        else:
+            # theres an existing CrimeOfficer and checkbox is not checked, delete it
+            if crime_officer is not None:
+                db.session.delete(crime_officer)
+
+    db.session.commit()
+    return redirect(f'/officer/{id}')
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

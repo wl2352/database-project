@@ -10,7 +10,7 @@ class Crime(db.Model):
     payment_due_date = db.Column(db.DateTime)
     court_fee = db.Column(db.Float)
 
-    # appeals, crime_officers, and appeals will be deleted along with the crime
+    # appeals, crime_officers, and charges will be deleted along with the crime
     # officers wont be deleted since officer is the parent of this relationship
     criminal = db.relationship('Criminal', back_populates='crimes')
     appeals = db.relationship('Appeal', back_populates='crime', lazy=True, cascade='all, delete-orphan')
