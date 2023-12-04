@@ -9,6 +9,15 @@
     {% if role == 'admin' %}
         <button class="add modal-btn">Add New</button>
     {% endif %}
+    <form action="/officers" method="GET" style="margin: 10px;">
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="">Default</option>
+            <option value="id">ID</option>
+            <option value="name">Name</option>
+        </select>
+        <input type="submit" value="Submit">
+    </form>
     <ul>
         {% for officer in officers %}
         <li>

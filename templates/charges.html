@@ -4,6 +4,15 @@
 <div class="list">
     <h1>List of Charges</h1>
     <h2>Your role is: {{ role }}</h2>
+    <form action="/charges" method="GET" style="margin: 10px;">
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="">Default</option>
+            <option value="id">ID</option>
+            <option value="classification">Classification</option>
+        </select>
+        <input type="submit" value="Submit">
+    </form>
     <ul>
         {% for charge in charges %}
         <li>

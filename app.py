@@ -196,8 +196,14 @@ def list_of_criminals():
 
         
     else:
-        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).distinct().all()        
-        criminals = Criminal.query.all()
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).distinct().all()  
+        sort_option = request.args.get('sort', default='')      
+        if sort_option == 'id':
+            criminals = Criminal.query.order_by(Criminal.criminal_id).all()
+        elif sort_option == 'name':
+            criminals = Criminal.query.order_by(Criminal.name).all()
+        else:
+            criminals = Criminal.query.all()
         now = datetime.now().strftime('%Y-%m-%d')
 
         return render_template('criminals.html', criminals=criminals, charges=charges, now=now, role=current_user.role)
@@ -234,13 +240,26 @@ def list_of_officers():
         return make_response(jsonify({'badge_no' : badge_no}), 200)
     
     else:
-        officers = Officer.query.all()
+        sort_option = request.args.get('sort', default='')      
+        if sort_option == 'id':
+            officers = Officer.query.order_by(Officer.badge_no).all()
+        elif sort_option == 'name':
+            officers = Officer.query.order_by(Officer.name).all()
+        else:
+            officers = Officer.query.all()
         return render_template('officers.html', officers=officers, role=current_user.role)
 
 @app.route('/charges/')
 @login_required
 def list_of_charges():
-    charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).all()
+    sort_option = request.args.get('sort', default='')
+
+    if sort_option == 'classification':
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).order_by(Charge.classification).all()
+    elif sort_option == 'id':
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).order_by(Charge.charge_code).all()
+    else:
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).all()
     return render_template('charges.html', charges=charges, role=current_user.role)
 
 @app.route('/appeals', methods=['POST'])
