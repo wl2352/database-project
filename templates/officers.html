@@ -3,6 +3,8 @@
 {% block content %}
 <div>
     <h1>List of Officers</h1>
+    <!-- Button to open the modal for new criminal -->    
+    <button class="add modal-btn">Add New</button>
     <ul>
         {% for officer in officers %}
         <li>
@@ -14,4 +16,45 @@
         {% endfor %}
     </ul>
 </div>
+
+
+
+<!-- The Modal for adding a new officer -->
+<div class="modal">
+    <!-- Modal content -->
+    <div class="modal-content" id="new-officer-modal">
+        <span class="close">&times;</span>
+        <form id="add_officer_form">
+            <!-- criminal details -->
+            <h2>Officer Details</h2>
+            <div>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="precinct">Precinct</label>
+                <input type="number" id="precinct" name="precinct" />
+            </div>
+            <div class="delete-checkbox">
+                <label for="status">Status</label>
+                <input type="checkbox" id="status" name="status">                    
+            </div>
+            <div>
+                <label for="add-phone">Add a phone:</label>
+                <input type="text" id="add-phone" name="add_phone" />
+            </div>
+
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='modal.js') }}"></script>
+<script src="{{ url_for('static', filename='officers.js') }}"></script>
+
+{% endblock %}
 {% endblock %}

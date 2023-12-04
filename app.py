@@ -40,7 +40,6 @@ def signup():
 def list_of_criminals():
     if request.method == 'POST':
         form = request.get_json()
-        print(f'FORM IS {form}')
     
         new_criminal = Criminal(
             name=form['name'],
@@ -137,10 +136,39 @@ def list_of_criminals():
         now = datetime.now().strftime('%Y-%m-%d')
         return render_template('criminals.html', criminals=criminals, charges=charges, now=now)
 
-@app.route('/officers/')
+@app.route('/officers/', methods=['GET', 'POST'])
 def list_of_officers():
-    officers = Officer.query.all()
-    return render_template('officers.html', officers=officers)
+    if request.method == 'POST':
+        form = request.get_json()
+    
+        new_officer = Officer(
+            name=form['name'],
+            precinct=form['precinct'],
+            status=form['status']
+        )
+
+        try:
+            db.session.add(new_officer)
+            db.session.commit()
+            badge_no = new_officer.badge_no
+            # create new phone
+            if form['add_phone']:
+                new_phone = OfficerPhone(
+                    o_phone_number = form['add_phone'],
+                    badge_no=badge_no
+                )
+                db.session.add(new_phone)
+                db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f'error: {e}')
+            return jsonify(message=str(e)), 400
+
+        return make_response(jsonify({'badge_no' : badge_no}), 200)
+    
+    else:
+        officers = Officer.query.all()
+        return render_template('officers.html', officers=officers)
 
 @app.route('/charges/')
 def list_of_charges():
