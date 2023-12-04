@@ -14,12 +14,13 @@
             <span><strong># VIOLATIONS: </strong>{{ sentence.num_violations }}</span>
         </div>
         
-
-        <div class="edit-delete">
-            <button class="delete" onclick="deletePrompt('sentence', '{{ sentence.sentence_id }}')">Delete</button>    
-            <!-- Button to Open the Modal -->        
-            <button id="edit-sentence" class="edit">Edit</button>
-        </div>
+        {% if role == 'admin' %}
+            <div class="edit-delete">
+                <button class="delete" onclick="deletePrompt('sentence', '{{ sentence.sentence_id }}')">Delete</button>    
+                <!-- Button to Open the Modal -->        
+                <button id="edit-sentence" class="edit">Edit</button>
+            </div>
+        {% endif %}
 
         <!-- The Modal -->
         <div id="sentence-modal" class="modal">

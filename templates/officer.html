@@ -19,13 +19,13 @@
                 {% endfor %}
             </span>
         </div>
-        
-        <div class="edit-delete">
-            <button class="delete" onclick="deletePrompt('officer', '{{ officer.badge_no }}')">Delete</button>    
-            <!-- Button to Open the Modal -->        
-            <button id="edit-officer" class="edit modal-btn">Edit</button>
-        </div>
-
+        {% if role == 'admin' %}
+            <div class="edit-delete">
+                <button class="delete" onclick="deletePrompt('officer', '{{ officer.badge_no }}')">Delete</button>    
+                <!-- Button to Open the Modal -->        
+                <button id="edit-officer" class="edit modal-btn">Edit</button>
+            </div>
+        {% endif %}
         
     </div>
 
@@ -34,7 +34,9 @@
             <div class="table-add">
                 <strong>Crimes</strong>
                 <!-- Button to open the modal for new crime -->    
-                <button class="add modal-btn">Add New</button>
+                {% if role == 'admin' %}
+                    <button class="add modal-btn">Add New</button>
+                {% endif %}            
             </div>
             <table>
                 <thead>

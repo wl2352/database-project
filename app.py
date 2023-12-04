@@ -26,6 +26,12 @@ DB_GUEST_URI = os.getenv('DB_GUEST_URI')
 DB_MAIN_URI = os.getenv('DB_MAIN_URI')
 SECRET = os.getenv('SECRET')
 
+# def set_guest():
+#     app.config['SQLALCHEMY_DATABASE_URI'] = DB_GUEST_URI
+
+# def set_admin():
+#     app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 app.config['SECRET_KEY'] = SECRET
@@ -44,12 +50,6 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-def set_guest():
-    app.config['SQLALCHEMY_DATABASE_URI'] = DB_GUEST_URI
-
-def set_admin():
-    app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -103,7 +103,7 @@ def signup():
 @app.route('/criminals', methods=['GET', 'POST'])
 @login_required
 def list_of_criminals():
-    if request.method == 'POST':
+    if request.method == 'POST' and current_user.role == 'admin':
         form = request.get_json()
     
         new_criminal = Criminal(
@@ -199,12 +199,13 @@ def list_of_criminals():
         charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).distinct().all()        
         criminals = Criminal.query.all()
         now = datetime.now().strftime('%Y-%m-%d')
-        return render_template('criminals.html', criminals=criminals, charges=charges, now=now)
+
+        return render_template('criminals.html', criminals=criminals, charges=charges, now=now, role=current_user.role)
 
 @app.route('/officers/', methods=['GET', 'POST'])
 @login_required
 def list_of_officers():
-    if request.method == 'POST':
+    if request.method == 'POST' and current_user.role == 'admin':
         form = request.get_json()
     
         new_officer = Officer(
@@ -234,95 +235,98 @@ def list_of_officers():
     
     else:
         officers = Officer.query.all()
-        return render_template('officers.html', officers=officers)
+        return render_template('officers.html', officers=officers, role=current_user.role)
 
 @app.route('/charges/')
 @login_required
 def list_of_charges():
     charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).all()
-    return render_template('charges.html', charges=charges)
+    return render_template('charges.html', charges=charges, role=current_user.role)
 
 @app.route('/appeals', methods=['POST'])
 @login_required
 def add_appeal():
-    data = request.get_json()
+    if current_user.role == 'admin':
+        data = request.get_json()
 
-    # make sure crime exists
-    crime_id = data['crime_id']
-    crime = Crime.query.get(crime_id)
-    if crime is None:
-        return make_response(jsonify({'message': 'No crime found with this ID'}), 404)
+        # make sure crime exists
+        crime_id = data['crime_id']
+        crime = Crime.query.get(crime_id)
+        if crime is None:
+            return make_response(jsonify({'message': 'No crime found with this ID'}), 404)
 
-    new_appeal = Appeal( 
-        crime_id=crime_id, 
-        filing_date=data['filing_date'], 
-        hearing_date=data['hearing_date'], 
-        appeal_status=data['appeal_status']
-    )
+        new_appeal = Appeal( 
+            crime_id=crime_id, 
+            filing_date=data['filing_date'], 
+            hearing_date=data['hearing_date'], 
+            appeal_status=data['appeal_status']
+        )
 
-    db.session.add(new_appeal)
-    db.session.commit()
+        db.session.add(new_appeal)
+        db.session.commit()
 
-    return make_response(jsonify({'message': 'Appeal has been created'}), 200)
+        return make_response(jsonify({'message': 'Appeal has been created'}), 200)
     
 @app.route('/sentences', methods=['POST'])
 @login_required
 def add_sentence():
-    data = request.get_json()
+    if current_user.role == 'admin':
+        data = request.get_json()
 
-    # make sure criminal exists
-    criminal_id = data['criminal_id']
-    criminal = Criminal.query.get(criminal_id)
-    if criminal is None:
-        return make_response(jsonify({'message': 'No criminal found with this ID'}), 404)
+        # make sure criminal exists
+        criminal_id = data['criminal_id']
+        criminal = Criminal.query.get(criminal_id)
+        if criminal is None:
+            return make_response(jsonify({'message': 'No criminal found with this ID'}), 404)
 
-    new_sentence = Sentence( 
-        criminal_id=criminal_id, 
-        start_date=data['start_date'], 
-        end_date=data['end_date'], 
-        num_violations=data['num_violations'],
-        type=data['type']
-    )
+        new_sentence = Sentence( 
+            criminal_id=criminal_id, 
+            start_date=data['start_date'], 
+            end_date=data['end_date'], 
+            num_violations=data['num_violations'],
+            type=data['type']
+        )
 
-    db.session.add(new_sentence)
-    db.session.commit()
+        db.session.add(new_sentence)
+        db.session.commit()
 
-    return make_response(jsonify({'message': 'Sentence has been created'}), 200)
+        return make_response(jsonify({'message': 'Sentence has been created'}), 200)
     
 @app.route('/crimes', methods=['POST'])
 @login_required
 def create_crime():
-    data = request.get_json()
-    
-    new_crime = Crime(
-        criminal_id=data['criminal_id'],
-        fine=data['fine'],
-        amount_paid=data['amount_paid'],
-        payment_due_date=data['payment_due_date'],
-        court_fee=data['court_fee']
-    )
-    
-    try:
-        db.session.add(new_crime)
-        db.session.commit()
+    if current_user.role == 'admin':
+        data = request.get_json()
+        
+        new_crime = Crime(
+            criminal_id=data['criminal_id'],
+            fine=data['fine'],
+            amount_paid=data['amount_paid'],
+            payment_due_date=data['payment_due_date'],
+            court_fee=data['court_fee']
+        )
+        
+        try:
+            db.session.add(new_crime)
+            db.session.commit()
 
-        # add charges associated with the crime
-        charges = Charge.query.all()
+            # add charges associated with the crime
+            charges = Charge.query.all()
 
-        # dictionary where each charge_code maps to its classification
-        charge_classifications = {charge.charge_code: charge.classification for charge in charges}
+            # dictionary where each charge_code maps to its classification
+            charge_classifications = {charge.charge_code: charge.classification for charge in charges}
 
-        for charge_code in data['charge_codes']:
-            new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id, classification=charge_classifications[int(charge_code)])
-            db.session.add(new_charge)
+            for charge_code in data['charge_codes']:
+                new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id, classification=charge_classifications[int(charge_code)])
+                db.session.add(new_charge)
 
-        db.session.commit()
-        return jsonify(message='New crime and associated charges created'), 201
+            db.session.commit()
+            return jsonify(message='New crime and associated charges created'), 201
 
-    except Exception as e:
-        # rollback the transaction
-        db.session.rollback()
-        return jsonify(message=str(e)), 400
+        except Exception as e:
+            # rollback the transaction
+            db.session.rollback()
+            return jsonify(message=str(e)), 400
 
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
@@ -331,8 +335,7 @@ def get_criminal(id):
     criminal = Criminal.query.get(id)
     if not criminal:
         abort(404, description="No criminal found with the provided ID.")    
-    if request.method == 'POST':
-        # add user authentication before proceeding
+    if request.method == 'POST' and current_user.role == 'admin':
 
         form = request.get_json()
 
@@ -434,7 +437,7 @@ def get_criminal(id):
 
         db.session.commit()
         return jsonify(message="Success"), 201
-    elif request.method == 'DELETE':
+    elif request.method == 'DELETE' and current_user.role == 'admin':
         db.session.delete(criminal)
         db.session.commit()
         return make_response(jsonify({'message': 'Criminal has been deleted'}), 200)
@@ -444,7 +447,7 @@ def get_criminal(id):
         crimes = Crime.query.filter_by(criminal_id=id).all()
         sentences = Sentence.query.filter_by(criminal_id=id).all()
         now = datetime.now().strftime('%Y-%m-%d')
-        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now, charges=charges)
+        return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now, charges=charges, role=current_user.role)
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -452,8 +455,7 @@ def get_crime(id):
     crime = Crime.query.get(id)
     if crime is None:
         abort(404, description="No crime found with the provided ID.")
-    if request.method == 'POST':
-        # add user authentication before proceeding
+    if request.method == 'POST' and current_user.role == 'admin':
 
         # update the fine
         if 'fine' in request.form and request.form['fine']:
@@ -474,7 +476,7 @@ def get_crime(id):
         db.session.commit()
         return redirect(url_for('get_crime', id=id))
     
-    elif request.method == 'DELETE':
+    elif request.method == 'DELETE' and current_user.role == 'admin':
         db.session.delete(crime)
         db.session.commit()
         return make_response(jsonify({'message': 'Crime has been deleted'}), 200)
@@ -487,7 +489,7 @@ def get_crime(id):
         officers = [crime_officer.officer for crime_officer in crime_officers]  # get the Officer objects
         criminal = crime.criminal
         now = datetime.now().strftime('%Y-%m-%d')
-        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal, now=now)
+        return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal, now=now, role=current_user.role)
 
 @app.route('/appeal/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -495,9 +497,7 @@ def get_appeal(id):
     appeals = Appeal.query.get(id)
     if appeals is None:
         abort(404, description="No appeal found with the provided ID.")
-    if request.method == 'POST':
-        # add user authentication before proceeding
-
+    if request.method == 'POST' and current_user.role == 'admin':
         # update the appeal status
         if 'appeal_status' in request.form and request.form['appeal_status']:
             appeals.appeal_status = request.form['appeal_status']
@@ -514,7 +514,7 @@ def get_appeal(id):
         return redirect(url_for('get_appeal', id=id))
     else:
         criminal = appeals.crime.criminal
-        return render_template('appeal.html', appeal=appeals, criminal=criminal)
+        return render_template('appeal.html', appeal=appeals, criminal=criminal, role=current_user.role)
 
 @app.route('/sentence/<int:id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -522,8 +522,7 @@ def get_sentence(id):
     sentence = Sentence.query.get(id)
     if not sentence:
         abort(404, description="No sentence found with the provided ID.")
-    if request.method == 'POST':
-        # add user authentication before proceeding
+    if request.method == 'POST' and current_user.role == 'admin':
 
         # update the start date
         if 'start_date' in request.form and request.form['start_date']:
@@ -543,13 +542,13 @@ def get_sentence(id):
 
         db.session.commit()
         return redirect(url_for('get_sentence', id=id))
-    elif request.method == 'DELETE':
+    elif request.method == 'DELETE' and current_user.role == 'admin':
         db.session.delete(sentence)
         db.session.commit()
         return make_response(jsonify({'message': 'Sentence has been deleted'}), 200)
     else:
         criminal = sentence.criminal
-        return render_template('sentence.html', sentence=sentence, criminal=criminal)
+        return render_template('sentence.html', sentence=sentence, criminal=criminal, role=current_user.role)
 
 @app.route('/charge/<int:id>', methods=['GET'])
 @login_required
@@ -567,9 +566,7 @@ def get_officer(id):
     officer = Officer.query.get(id)
     if not officer:
         abort(404, description="No officer found with the provided ID.")
-    if request.method == 'POST':
-        # user auth
-
+    if request.method == 'POST' and current_user.role == 'admin':
         form = request.get_json()
         # updating name
         officer.name = form['name']
@@ -603,37 +600,38 @@ def get_officer(id):
         db.session.commit()
         return jsonify(message="Success"), 201
 
-    elif request.method == 'DELETE':
+    elif request.method == 'DELETE' and current_user.role == 'admin':
         db.session.delete(officer)
         db.session.commit()
         return make_response(jsonify({'message': 'Officer has been deleted'}), 200)
     else:
         crimes = Crime.query.all()
-        return render_template('officer.html', officer=officer, crimes=crimes)
+        return render_template('officer.html', officer=officer, crimes=crimes, role=current_user.role)
 
 @app.route('/officer/<int:id>/crimes', methods=['POST'])
 @login_required
 def update_officer_crimes(id):
-    officer = Officer.query.get(id)
-    crimes = Crime.query.all()
+    if current_user.role == 'admin':
+        officer = Officer.query.get(id)
+        crimes = Crime.query.all()
 
-    for crime in crimes:
-        # get corresponding CrimeOfficer if it exists
-        crime_officer = CrimeOfficer.query.filter_by(badge_no=id, crime_id=crime.crime_id).first()
+        for crime in crimes:
+            # get corresponding CrimeOfficer if it exists
+            crime_officer = CrimeOfficer.query.filter_by(badge_no=id, crime_id=crime.crime_id).first()
 
-        # check if theres a corresponding checkbox in the form
-        if 'crime_' + str(crime.crime_id) in request.form:
-            # crime_officer doesnt exist and checkbox is checked, so create one
-            if crime_officer is None:
-                new_crime_officer = CrimeOfficer(badge_no=id, crime_id=crime.crime_id)
-                db.session.add(new_crime_officer)
-        else:
-            # theres an existing CrimeOfficer and checkbox is not checked, delete it
-            if crime_officer is not None:
-                db.session.delete(crime_officer)
+            # check if theres a corresponding checkbox in the form
+            if 'crime_' + str(crime.crime_id) in request.form:
+                # crime_officer doesnt exist and checkbox is checked, so create one
+                if crime_officer is None:
+                    new_crime_officer = CrimeOfficer(badge_no=id, crime_id=crime.crime_id)
+                    db.session.add(new_crime_officer)
+            else:
+                # theres an existing CrimeOfficer and checkbox is not checked, delete it
+                if crime_officer is not None:
+                    db.session.delete(crime_officer)
 
-    db.session.commit()
-    return redirect(f'/officer/{id}')
+        db.session.commit()
+        return redirect(f'/officer/{id}')
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')

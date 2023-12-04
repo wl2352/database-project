@@ -1,8 +1,9 @@
 {% extends 'navbar.html' %}
 
 {% block content %}
-<div>
+<div class="list">
     <h1>List of Charges</h1>
+    <h2>Your role is: {{ role }}</h2>
     <ul>
         {% for charge in charges %}
         <li>

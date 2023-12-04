@@ -1,10 +1,13 @@
 {% extends 'navbar.html' %}
 
 {% block content %}
-<div>
+<div class="list">
     <h1>List of Criminals</h1>
+    <h2>Your role is: {{ role }}</h2>
     <!-- Button to open the modal for new criminal -->    
-    <button class="add modal-btn">Add New</button>
+    {% if role == 'admin' %}
+        <button class="add modal-btn">Add New</button>
+    {% endif %}
     <ul>
         {% for criminal in criminals %}
         <li>

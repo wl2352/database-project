@@ -30,12 +30,13 @@
             </span>
         </div>
         
-
-        <div class="edit-delete">
-            <button class="delete" onclick="deletePrompt('criminal', '{{ criminal.criminal_id }}')">Delete</button>            
-            <!-- Button to Open the Modal -->
-            <button id="edit-criminal" class="edit modal-btn">Edit</button>
-        </div>
+        {% if role == 'admin' %}
+            <div class="edit-delete">
+                <button class="delete" onclick="deletePrompt('criminal', '{{ criminal.criminal_id }}')">Delete</button>            
+                <!-- Button to Open the Modal -->
+                <button id="edit-criminal" class="edit modal-btn">Edit</button>
+            </div>
+        {% endif %}
     </div>
         
 
@@ -44,7 +45,9 @@
             <div class="table-add">
                 <strong>Crimes</strong>
                 <!-- Button to open the modal for new crime -->    
-                <button class="add modal-btn">Add New</button>
+                {% if role == 'admin' %}
+                    <button class="add modal-btn">Add New</button>
+                {% endif %}
             </div>
             <table>
                 <thead>
@@ -71,7 +74,9 @@
             <div class="table-add">
                 <strong>Sentences</strong>
                 <!-- Button to open the modal for new sentence -->    
-                <button class="add modal-btn">Add New</button>
+                {% if role == 'admin' %}
+                    <button class="add modal-btn">Add New</button>
+                {% endif %}
             </div>
             <table>
                 <thead>

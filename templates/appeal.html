@@ -3,6 +3,7 @@
 {% block content %}
 <div class="container">
     <h2>Appeal {{ appeal.appeal_id }} Report</h2>
+    
     <div class="info-edit">
         <div class="info">
             <span><strong>APPEAL ID: </strong>{{ appeal.appeal_id }}</span>
@@ -13,10 +14,10 @@
             <span><strong>FILING DATE: </strong>{{ appeal.filing_date }}</span>
         </div>
         
-
+        {% if role == 'admin' %}
         <!-- Button to Open the Modal -->
         <button id="edit-appeal" class="edit">Edit</button>
-
+        {% endif %}
         <!-- The Modal -->
         <div id="appeal-modal" class="modal">
             <!-- Modal content -->
@@ -46,6 +47,7 @@
             </div>
         </div>
     </div>
+    
 
 </div>
 {% block scripts %}
