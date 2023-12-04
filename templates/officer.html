@@ -26,55 +26,16 @@
             <button id="edit-officer" class="edit modal-btn">Edit</button>
         </div>
 
-        <!-- The Modal -->
-        <div id="officer-modal" class="modal">
-            <!-- Modal content -->
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <form id="edit_officer_form" data-officer-id="{{ officer.badge_no }}">
-                    <div>
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" value="{{ officer.name }}">
-                    </div>
-                    <div class="edit-multi">
-                        <div>
-                            <label for="phone-select">Phone Number</label>
-                            <select id="phone-select" name="phone_select">
-                                <option></option>
-                                {% for phone in officer.phones %}
-                                    <option value="{{ phone.o_phone_number }}">{{ phone.o_phone_number }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="delete-checkbox">
-                            <label for="delete-phone">Delete selected phone number?</label>
-                            <input type="checkbox" id="delete-phone" name="delete_phone">
-                        </div>
-                        <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
-                        <div>
-                            <label for="add-phone">Add a new phone:</label>
-                            <input type="text" id="add-phone" name="add_phone" />
-                        </div>
-                    </div>
-                    <div>
-                        <label for="precinct">Precinct</label>
-                        <input type="text" id="precinct" name="precinct" value="{{ officer.precinct }}">
-                    </div>
-                    <div class="delete-checkbox">
-                        <label for="status">Status</label>
-                        <input type="checkbox" id="status" name="status" {% if officer.status %}checked{% endif %}>                    
-                    </div>
-                    <div>
-                        <button type="submit">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        
     </div>
 
     <div class="tables">
         <div>
-            <strong>Crimes</strong>
+            <div class="table-add">
+                <strong>Crimes</strong>
+                <!-- Button to open the modal for new crime -->    
+                <button class="add modal-btn">Add New</button>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -98,6 +59,89 @@
         </div>
     </div>
 </div>
+
+
+
+
+<!-- The Modal for editing -->
+<div id="officer-modal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="edit_officer_form" data-officer-id="{{ officer.badge_no }}">
+            <div>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="{{ officer.name }}">
+            </div>
+            <div class="edit-multi">
+                <div>
+                    <label for="phone-select">Phone Number</label>
+                    <select id="phone-select" name="phone_select">
+                        <option></option>
+                        {% for phone in officer.phones %}
+                            <option value="{{ phone.o_phone_number }}">{{ phone.o_phone_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="delete-checkbox">
+                    <label for="delete-phone">Delete selected phone number?</label>
+                    <input type="checkbox" id="delete-phone" name="delete_phone">
+                </div>
+                <input type="text" id="phone" name="phone" placeholder="Edit selected phone number">
+                <div>
+                    <label for="add-phone">Add a new phone:</label>
+                    <input type="text" id="add-phone" name="add_phone" />
+                </div>
+            </div>
+            <div>
+                <label for="precinct">Precinct</label>
+                <input type="text" id="precinct" name="precinct" value="{{ officer.precinct }}">
+            </div>
+            <div class="delete-checkbox">
+                <label for="status">Status</label>
+                <input type="checkbox" id="status" name="status" {% if officer.status %}checked{% endif %}>                    
+            </div>
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- The Modal for adding a new crime -->
+<div class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form method="POST" action="/officer/{{ officer.badge_no }}/crimes">         
+            {% for crime in crimes %}
+                <div class="delete-checkbox">
+                    <label for="crime_{{ crime.crime_id }}">
+                        Crime {{ crime.crime_id }}
+                    </label>
+                        <input type="checkbox" id="crime_{{ crime.crime_id }}" name="crime_{{ crime.crime_id }}"
+                        {% for co in crime.crime_officers %}
+                            {% if co.badge_no == officer.badge_no %}
+                                checked
+                            {% endif %}
+                        {% endfor %}
+                        >
+                </div>
+            {% endfor %}
+            
+            <div>
+                <button type="submit">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
 <script src="{{ url_for('static', filename='officer.js') }}"></script>
