@@ -7,7 +7,7 @@
 <body>
     <h1>Criminal Management System</h1>
 
-    <form action="/signup" class="login-signup" method="post">
+    <form id="signup_form" class="login-signup">
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
@@ -17,9 +17,21 @@
             <input type="password" id="password" name="password" required>
         </div>
         <div class="form-group">
+            <label for="role">Role:</label>
+            <select name="role" id="role" required>
+                <option value="visitor">Visitor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div class="form-group">
             <button type="submit">Sign up</button>
         </div>
         <button onclick="location.href='/'">Return to log in</button>
     </form>
 </body>
 </html>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='signup.js') }}"></script>
+
+{% endblock %}

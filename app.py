@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, make_response
 from sqlalchemy import distinct
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
 from config import db
 from models.criminal import Criminal
@@ -22,10 +24,26 @@ load_dotenv()
 app = Flask(__name__)
 DB_GUEST_URI = os.getenv('DB_GUEST_URI')
 DB_MAIN_URI = os.getenv('DB_MAIN_URI')
+SECRET = os.getenv('SECRET')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
+app.config['SECRET_KEY'] = SECRET
 db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30), unique=True)
+    password = db.Column(db.String(120))
+    role = db.Column(db.String(30))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 def set_guest():
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_GUEST_URI
@@ -33,15 +51,57 @@ def set_guest():
 def set_admin():
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 
-@app.route('/')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'POST':
+        form = request.get_json()
+        username = form['username']
+        password = form['password']
+        remember = form['remember']
 
-@app.route('/signup')
+        user = User.query.filter_by(username=username).first()
+
+        # check if the user exists
+        # take password, hash it, and compare with the hashed password in database
+        if not user or not check_password_hash(user.password, password): 
+            return jsonify(message="User doesn't exist or incorrect password"), 400
+
+        login_user(user, remember=remember)
+        return jsonify(message="success"), 201
+    
+    else:
+        return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'POST':
+        form = request.get_json()
+        username = form['username']
+        password = form['password']
+        role = form['role']
+
+        if User.query.filter_by(username=username).first():
+            # user already exists
+            return jsonify(message="User already exists"), 400
+
+        new_user = User(username=username, password=generate_password_hash(password, method='pbkdf2:sha256'), role=role)
+        db.session.add(new_user)
+        db.session.commit()
+
+        # log in the user
+        login_user(new_user)
+        return jsonify(message="success"), 201
+    else:
+        return render_template('signup.html')
 
 @app.route('/criminals', methods=['GET', 'POST'])
+@login_required
 def list_of_criminals():
     if request.method == 'POST':
         form = request.get_json()
@@ -142,6 +202,7 @@ def list_of_criminals():
         return render_template('criminals.html', criminals=criminals, charges=charges, now=now)
 
 @app.route('/officers/', methods=['GET', 'POST'])
+@login_required
 def list_of_officers():
     if request.method == 'POST':
         form = request.get_json()
@@ -176,11 +237,13 @@ def list_of_officers():
         return render_template('officers.html', officers=officers)
 
 @app.route('/charges/')
+@login_required
 def list_of_charges():
     charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).group_by(Charge.charge_code).all()
     return render_template('charges.html', charges=charges)
 
 @app.route('/appeals', methods=['POST'])
+@login_required
 def add_appeal():
     data = request.get_json()
 
@@ -203,6 +266,7 @@ def add_appeal():
     return make_response(jsonify({'message': 'Appeal has been created'}), 200)
     
 @app.route('/sentences', methods=['POST'])
+@login_required
 def add_sentence():
     data = request.get_json()
 
@@ -226,6 +290,7 @@ def add_sentence():
     return make_response(jsonify({'message': 'Sentence has been created'}), 200)
     
 @app.route('/crimes', methods=['POST'])
+@login_required
 def create_crime():
     data = request.get_json()
     
@@ -261,6 +326,7 @@ def create_crime():
 
 
 @app.route('/criminal/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
 def get_criminal(id):
     criminal = Criminal.query.get(id)
     if not criminal:
@@ -381,6 +447,7 @@ def get_criminal(id):
         return render_template('criminal.html', criminal=criminal, crimes=crimes, sentences=sentences, now=now, charges=charges)
     
 @app.route('/crime/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
 def get_crime(id):
     crime = Crime.query.get(id)
     if crime is None:
@@ -423,6 +490,7 @@ def get_crime(id):
         return render_template('crime.html', crime=crime, charge_codes=charge_codes, appeals=appeals, officers=officers, criminal=criminal, now=now)
 
 @app.route('/appeal/<int:id>', methods=['GET', 'POST'])
+@login_required
 def get_appeal(id):
     appeals = Appeal.query.get(id)
     if appeals is None:
@@ -449,6 +517,7 @@ def get_appeal(id):
         return render_template('appeal.html', appeal=appeals, criminal=criminal)
 
 @app.route('/sentence/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
 def get_sentence(id):
     sentence = Sentence.query.get(id)
     if not sentence:
@@ -483,6 +552,7 @@ def get_sentence(id):
         return render_template('sentence.html', sentence=sentence, criminal=criminal)
 
 @app.route('/charge/<int:id>', methods=['GET'])
+@login_required
 def get_charges(id):
     charge = Charge.query.filter_by(charge_code=id).first()
     charges = Charge.query.filter_by(charge_code=id).all()
@@ -492,6 +562,7 @@ def get_charges(id):
     return render_template('charge.html', charge=charge, crimes=crimes)
     
 @app.route('/officer/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
 def get_officer(id):
     officer = Officer.query.get(id)
     if not officer:
@@ -541,6 +612,7 @@ def get_officer(id):
         return render_template('officer.html', officer=officer, crimes=crimes)
 
 @app.route('/officer/<int:id>/crimes', methods=['POST'])
+@login_required
 def update_officer_crimes(id):
     officer = Officer.query.get(id)
     crimes = Crime.query.all()
