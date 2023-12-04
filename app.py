@@ -36,13 +36,106 @@ def login():
 def signup():
     return render_template('signup.html')
 
-@app.route('/criminals')
+@app.route('/criminals', methods=['GET', 'POST'])
 def list_of_criminals():
-    charges = Charge.query.filter_by(crime_id=id).all()
-    charge_codes = [str(charge.charge_code) for charge in charges]
-    criminals = Criminal.query.all()
-    now = datetime.now().strftime('%Y-%m-%d')
-    return render_template('criminals.html', criminals=criminals, charge_codes=charge_codes, now=now)
+    if request.method == 'POST':
+        form = request.get_json()
+        print(f'FORM IS {form}')
+    
+        new_criminal = Criminal(
+            name=form['name'],
+            violent_status=form['violent_status'],
+            probation_status=form['probation_status']
+        )
+
+        try:
+            # commit the change to get criminal id
+            db.session.add(new_criminal)
+            db.session.commit()
+            criminal_id = new_criminal.criminal_id
+            # create new alias
+            if form['add_alias']:
+                new_alias = Alias(
+                    alias_name=form['add_alias'],
+                    criminal_id=criminal_id
+                )
+                db.session.add(new_alias)
+                db.session.commit()
+
+            # create new address
+            if form['add_address']:
+                new_address = form['add_address'].split(', ')
+                street_address, city, state, zip_code = new_address[0], new_address[1], new_address[2], int(new_address[3])
+                new_address = Address(
+                    street_address=street_address,
+                    city=city,
+                    state=state,
+                    zip_code=zip_code,
+                    criminal_id=criminal_id
+                )
+                db.session.add(new_address)
+                db.session.commit()
+
+            # create new phone
+            if form['add_phone']:
+                new_phone = CriminalPhone(
+                    c_phone_number = form['add_phone'],
+                    criminal_id=criminal_id
+                )
+                db.session.add(new_phone)
+                db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f'error: {e}')
+            return jsonify(message=str(e)), 400
+        
+        # create new crime
+        new_crime = Crime(
+            criminal_id=criminal_id,
+            fine=form['fine'],
+            amount_paid=form['amount_paid'],
+            payment_due_date=form['payment_due_date'],
+            court_fee=form['court_fee']
+        )
+        try:
+            db.session.add(new_crime)
+            db.session.commit()
+
+            # add charges associated with the crime
+            charges = Charge.query.all()
+            # dictionary where each charge_code maps to its classification
+            charge_classifications = {charge.charge_code: charge.classification for charge in charges}
+
+            for charge_code in form['charge_codes']:
+                new_charge = Charge(charge_code=charge_code, crime_id=new_crime.crime_id, classification=charge_classifications[int(charge_code)])
+                db.session.add(new_charge)
+
+            db.session.commit()
+
+        except Exception as e:
+            # rollback the transaction
+            db.session.rollback()
+            print(f'error: {e}')
+            return jsonify(message=str(e)), 400
+    
+        new_sentence = Sentence( 
+            criminal_id=criminal_id, 
+            start_date=form['start_date'], 
+            end_date=form['end_date'], 
+            num_violations=form['num_violations'],
+            type=form['type']
+        )
+        db.session.add(new_sentence)
+        db.session.commit()
+
+        return make_response(jsonify({'criminal_id' : criminal_id}), 200)
+
+        
+    else:
+        charges = Charge.query.with_entities(Charge.charge_code, Charge.classification).distinct().all()        
+        criminals = Criminal.query.all()
+        now = datetime.now().strftime('%Y-%m-%d')
+        return render_template('criminals.html', criminals=criminals, charges=charges, now=now)
 
 @app.route('/officers/')
 def list_of_officers():
@@ -146,6 +239,11 @@ def get_criminal(id):
 
         # updating name
         criminal.name = form['name']
+
+        # updating violent status
+        criminal.violent_status = form['violent_status']
+        # updating probation status
+        criminal.probation_status = form['probation_status']
         
         # updating an alias
         if form['alias_select'] and (form['delete_alias'] or form['alias']):

@@ -15,6 +15,8 @@
     <div class="info-edit">
         <div class="info">
             <span><strong>CRIMINAL ID: </strong>{{ criminal.criminal_id }}</span>
+            <span><strong>VIOLENT STATUS: </strong>{{ criminal.violent_status }}</span>
+            <span><strong>PROBATION STATUS: </strong>{{ criminal.probation_status }}</span>
             <span><strong>PHONE NUMBERS: </strong>
                 {% for phone in criminal.phones %}
                     {{ phone.c_phone_number }} {% if not loop.last %} | {% endif %}
@@ -106,7 +108,15 @@
         <form id="edit_criminal_form" data-criminal-id="{{ criminal.criminal_id }}">
             <div>
                 <label for="name">Name</label>
-                <input type="text" id="name" name="name" value="{{ criminal.name }}">
+                <input type="text" id="name" name="name" value="{{ criminal.name }}" required>
+            </div>
+            <div class="delete-checkbox">
+                <label for="violent_status">Violent Status</label>
+                <input type="checkbox" id="violent_status" name="violent_status"{% if criminal.violent_status %}checked{% endif %}>                    
+            </div>
+            <div class="delete-checkbox">
+                <label for="probation_status">Probation Status</label>
+                <input type="checkbox" id="probation_status" name="probation_status"{% if criminal.probation_status %}checked{% endif %}>                    
             </div>
             <div class="edit-multi">
                 <div>

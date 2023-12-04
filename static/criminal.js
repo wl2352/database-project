@@ -5,6 +5,8 @@ edit_criminal_form.addEventListener('submit', async function(e) {
     const form = e.target;
 
     const name = form.elements.name.value;
+    const violent_status = form.elements.violent_status.checked;
+    const probation_status = form.elements.probation_status.checked;
     const alias = form.elements.alias.value;
     const alias_select = form.elements.alias_select.value;
     const delete_alias = form.elements.delete_alias.checked;
@@ -30,6 +32,8 @@ edit_criminal_form.addEventListener('submit', async function(e) {
         },
         body: JSON.stringify({
             name,
+            violent_status,
+            probation_status,
             alias,
             alias_select,
             delete_alias,
