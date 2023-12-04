@@ -14,9 +14,14 @@ from models.appeal import Appeal
 from models.officer import Officer
 from models.crime_officer import CrimeOfficer
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 app = Flask(__name__)
-DB_GUEST_URI = 'mysql+pymysql://guestuser:@localhost:3306/project'
-DB_MAIN_URI = 'mysql+pymysql://root:@localhost:3306/project'
+DB_GUEST_URI = os.getenv('DB_GUEST_URI')
+DB_MAIN_URI = os.getenv('DB_MAIN_URI')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_MAIN_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
